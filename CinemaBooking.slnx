@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="CinemaBooking/CinemaBooking.csproj" />
+  <Project Path="BuisnessLogicLayer/BuisnessLogicLayer.csproj" />
+  <Project Path="CinemaBooking/PresentationLayer.csproj" />
+  <Project Path="DataAccessLayer/DataAccessLayer.csproj" />
 </Solution>
