@@ -9,6 +9,7 @@
     public DateTime CreatedAt { get; set; }
     public bool IsCheckedIn { get; set; }
     public DateTime? CheckedInAt { get; set; }
+    public DateTime BookingDate { get; set; }
 
     // Navigation Properties
     public User? User { get; set; }
