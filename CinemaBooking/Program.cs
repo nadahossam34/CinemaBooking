@@ -1,3 +1,5 @@
+using BuisnessLogicLayer.Service;
+
 namespace CinemaBooking
 {
     public class Program
@@ -8,6 +10,10 @@ namespace CinemaBooking
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<IMovieService, MovieService>();
+            builder.Services.AddScoped<ICinemaService, CinemaService>();
+
+            
 
             var app = builder.Build();
 
