@@ -1,0 +1,41 @@
+﻿@model BuisnessLogicLayer.ViewModels.PaymentViewModel
+
+<h2>Payment</h2>
+
+<form asp-action="Payment" method="post">
+
+    <input type="hidden" asp-for="BookingId" />
+    <input type="hidden" asp-for="Amount" />
+
+    <div>
+        <label>Amount</label>
+        <input asp-for="Amount" readonly />
+    </div>
+
+    <div>
+        <label>Payment Method</label>
+        <select asp-for="PaymentMethod">
+            <option value="">Select Payment Method</option>
+            <option value="Card">Card</option>
+            <option value="Cash">Cash</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Card Number</label>
+        <input asp-for="CardNumber" />
+    </div>
+
+    <div>
+        <label>Expiry Date</label>
+        <input asp-for="ExpiryDate" />
+    </div>
+
+    <div>
+        <label>CVV</label>
+        <input asp-for="CVV" />
+    </div>
+
+    <button type="submit">Pay Now</button>
+
+</form>

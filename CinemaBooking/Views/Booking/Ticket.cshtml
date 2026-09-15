@@ -1,0 +1,28 @@
+﻿@model BuisnessLogicLayer.ViewModels.TicketViewModel
+
+<h2>Booking Ticket</h2>
+
+<div>
+    <p><strong>Ticket Number:</strong> @Model.TicketNumber</p>
+
+    <p><strong>Movie:</strong> @Model.MovieTitle</p>
+
+    <p><strong>Cinema:</strong> @Model.CinemaName</p>
+
+    <p><strong>Hall:</strong> @Model.HallName</p>
+
+    <p><strong>Showtime:</strong> @Model.Showtime</p>
+
+    <p><strong>Seats:</strong> @Model.Seats</p>
+
+    <p><strong>Total Amount:</strong> @Model.TotalAmount</p>
+</div>
+
+<div>
+    <h3>QR Code</h3>
+
+    <img src="@Model.QRCodeImage"
+         alt="Ticket QR Code"
+         width="200"
+         height="200" />
+</div>
