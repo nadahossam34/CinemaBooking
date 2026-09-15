@@ -12,8 +12,7 @@ namespace CinemaBooking
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<ICinemaService, CinemaService>();
-
-            
+            builder.Services.AddScoped<IShowtimeService, ShowtimeService>(); // <--- ضفنا السطر هنا
 
             var app = builder.Build();
 
