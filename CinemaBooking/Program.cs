@@ -1,4 +1,5 @@
 using BuisnessLogicLayer.Service;
+using BuisnessLogicLayer.Services;
 
 namespace CinemaBooking
 {
@@ -13,7 +14,10 @@ namespace CinemaBooking
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<ICinemaService, CinemaService>();
 
-            
+            builder.Services.AddScoped<BookingService>();
+            builder.Services.AddScoped<PaymentService>();
+            builder.Services.AddScoped<QRCodeService>();
+
 
             var app = builder.Build();
 
