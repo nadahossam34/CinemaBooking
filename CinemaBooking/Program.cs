@@ -18,6 +18,7 @@ namespace CinemaBooking
             builder.Services.AddScoped<PaymentService>();
             builder.Services.AddScoped<QRCodeService>();
 
+            builder.Services.AddScoped<IShowtimeService, ShowtimeService>(); // <--- ضفنا السطر هنا
 
             var app = builder.Build();
 
