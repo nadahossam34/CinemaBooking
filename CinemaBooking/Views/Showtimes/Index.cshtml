@@ -1,0 +1,30 @@
+﻿@model IEnumerable<PresentationLayer.ViewModels.ShowtimeViewModel>
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Available Showtimes</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center">No showtimes available for this movie.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var showtime in Model)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">@showtime.MovieTitle</h5>
+                            <p class="card-text mb-1"><strong>Cinema:</strong> @showtime.CinemaName</p>
+                            <p class="card-text mb-1"><strong>Hall:</strong> @showtime.HallName</p>
+                            <a asp-controller="Seats" asp-action="SelectSeats" asp-route-showtimeId="@showtime.ShowtimeId" class="btn btn-success w-100 mt-3">
+                                Select Seats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

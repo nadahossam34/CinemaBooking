@@ -1,0 +1,47 @@
+﻿@model PresentationLayer.ViewModels.SeatMapViewModel
+
+<div class="container mt-4 text-center">
+    <h2>@Model.MovieTitle</h2>
+    <p class="text-muted">@Model.CinemaName - @Model.HallName</p>
+
+    <!-- Screen Banner -->
+    <div class="bg-dark text-white py-2 mb-4 rounded shadow-sm">
+        <h5 class="m-0">SCREEN</h5>
+    </div>
+
+    <!-- Legend -->
+    <div class="d-flex justify-content-center gap-4 mb-4">
+        <div><span class="badge bg-secondary p-2">&nbsp;</span> Available</div>
+        <div><span class="badge bg-danger p-2">&nbsp;</span> Booked</div>
+        <div><span class="badge bg-warning text-dark p-2">&nbsp;</span> VIP</div>
+    </div>
+
+    <!-- Seats Grid -->
+    <form asp-controller="Seats" asp-action="ConfirmSeats" method="post">
+        <input type="hidden" name="ShowtimeId" value="@Model.ShowtimeId" />
+
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" style="max-width: 600px; margin: 0 auto;">
+            @foreach (var seat in Model.Seats)
+            {
+                if (seat.IsBooked)
+                {
+                    <button type="button" class="btn btn-danger btn-sm disabled" style="width: 45px; height: 45px;">
+                        @seat.SeatNumber
+                    </button>
+                }
+                else
+                {
+                    var btnClass = seat.SeatTypeName.ToUpper() == "VIP" ? "btn-outline-warning" : "btn-outline-secondary";
+                    <div class="form-check form-check-inline m-0 p-0">
+                        <input type="checkbox" name="SelectedSeatIds" value="@seat.SeatId" class="btn-check" id="seat-@seat.SeatId" autocomplete="off">
+                        <label class="btn @btnClass btn-sm" for="seat-@seat.SeatId" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                            @seat.SeatNumber
+                        </label>
+                    </div>
+                }
+            }
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg mt-3">Confirm Selected Seats</button>
+    </form>
+</div>
