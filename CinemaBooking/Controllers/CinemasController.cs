@@ -1,10 +1,12 @@
 using CinemaBooking.Data;
 using CinemaBooking.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using BuisnessLogicLayer.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CinemaBooking.Controllers
+namespace PresentationLayer.Controllers
 {
     // Views live under Views/Admin/Cinemas/ (explicit paths below), same approach
     // as MoviesController in Phase 5.
@@ -12,12 +14,15 @@ namespace CinemaBooking.Controllers
     public class CinemasController : Controller
     {
         private const string ViewsFolder = "~/Views/Admin/Cinemas/";
+        private readonly ICinemaService _cinemaService;
 
         private readonly AppDbContext _context;
 
         public CinemasController(AppDbContext context)
+        public CinemasController(ICinemaService cinemaService)
         {
             _context = context;
+            _cinemaService = cinemaService;
         }
 
         // GET: /Cinemas
@@ -28,16 +33,20 @@ namespace CinemaBooking.Controllers
                 .AsNoTracking()
                 .OrderBy(c => c.Name)
                 .ToListAsync();
+            var cinemas = await _cinemaService.GetAllCinemasAsync();
 
             return View(ViewsFolder + "Index.cshtml", cinemas);
+            return View(cinemas);
         }
 
         // GET: /Cinemas/Create
         [HttpGet]
         public IActionResult Create()
+        public async Task<IActionResult> Details(int id)
         {
             return View(ViewsFolder + "Create.cshtml", new CinemaFormViewModel());
         }
+            var cinema = await _cinemaService.GetCinemaByIdAsync(id);
 
         // POST: /Cinemas/Create
         [HttpPost]
@@ -99,14 +108,21 @@ namespace CinemaBooking.Controllers
             if (id != model.Id)
             {
                 return BadRequest();
-            }
+            return View(cinema);
+        }
 
             if (!ModelState.IsValid)
-            {
+        [HttpGet]
+        public async Task<IActionResult> Nearest(
+            double latitude,
+            double longitude)
+        {
                 return View(ViewsFolder + "Edit.cshtml", model);
             }
 
             var cinema = await _context.Cinemas.FindAsync(id);
+            var cinema = await _cinemaService
+                .GetNearestCinemaAsync(latitude, longitude);
 
             if (cinema == null)
             {
@@ -186,6 +202,7 @@ namespace CinemaBooking.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+            return View(cinema);
         }
     }
 }

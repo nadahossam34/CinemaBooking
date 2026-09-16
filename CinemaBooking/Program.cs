@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using BuisnessLogicLayer.Service;
 
 namespace CinemaBooking
 {
@@ -56,6 +57,9 @@ namespace CinemaBooking
                         new AuthenticationHeaderValue("Bearer", tmdbOptions.ApiReadAccessToken);
                 }
             });
+            builder.Services.AddScoped<IMovieService, MovieService>();
+            builder.Services.AddScoped<ICinemaService, CinemaService>();
+            builder.Services.AddScoped<IShowtimeService, ShowtimeService>(); // <--- ضفنا السطر هنا
 
             var app = builder.Build();
 
