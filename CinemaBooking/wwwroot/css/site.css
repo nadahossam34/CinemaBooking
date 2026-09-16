@@ -1,0 +1,278 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+/* =========================================================
+   CineVerse dark/pink theme
+   Scoped to the navbar + auth/profile pages only, so the
+   existing Home/Privacy pages are left visually unchanged.
+   ========================================================= */
+:root {
+  --cb-navy: #0b0e17;
+  --cb-navy-light: #131728;
+  --cb-card: #171b2c;
+  --cb-border: #262b40;
+  --cb-pink: #ef2f77;
+  --cb-pink-dark: #d41f63;
+  --cb-text: #f2f2f7;
+  --cb-text-muted: #9aa0b4;
+}
+
+/* Navbar */
+.bg-dark-navy {
+  background-color: var(--cb-navy) !important;
+}
+
+.navbar-dark.bg-dark-navy .navbar-brand {
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--cb-text);
+}
+
+.navbar-dark.bg-dark-navy .brand-accent {
+  color: var(--cb-pink);
+}
+
+.navbar-dark.bg-dark-navy .nav-link {
+  color: var(--cb-text-muted);
+}
+
+.navbar-dark.bg-dark-navy .nav-link:hover,
+.navbar-dark.bg-dark-navy .nav-link:focus {
+  color: var(--cb-text);
+}
+
+.navbar-dark.bg-dark-navy .btn-link.nav-link {
+  text-decoration: none;
+}
+
+/* Auth / Profile pages */
+.cb-auth-page {
+  background-color: var(--cb-navy);
+  border-radius: 20px;
+  padding: 48px 16px;
+}
+
+.cb-auth-card {
+  max-width: 420px;
+  margin: 0 auto;
+  background-color: var(--cb-card);
+  border: 1px solid var(--cb-border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  color: var(--cb-text);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.cb-auth-card h2 {
+  color: var(--cb-text);
+  font-weight: 700;
+}
+
+.text-muted-cb {
+  color: var(--cb-text-muted) !important;
+}
+
+.cb-auth-card label {
+  color: var(--cb-text-muted);
+  font-weight: 500;
+}
+
+.cb-auth-card .form-control {
+  background-color: var(--cb-navy-light);
+  border: 1px solid var(--cb-border);
+  color: var(--cb-text);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.cb-auth-card .form-control::placeholder {
+  color: #6b7185;
+}
+
+.cb-auth-card .form-control:focus {
+  background-color: var(--cb-navy-light);
+  color: var(--cb-text);
+  border-color: var(--cb-pink);
+  box-shadow: 0 0 0 0.2rem rgba(239, 47, 119, 0.25);
+}
+
+.cb-auth-card .form-check-input:checked {
+  background-color: var(--cb-pink);
+  border-color: var(--cb-pink);
+}
+
+.btn-cb-primary {
+  background-color: var(--cb-pink);
+  border-color: var(--cb-pink);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+
+.btn-cb-primary:hover,
+.btn-cb-primary:focus {
+  background-color: var(--cb-pink-dark);
+  border-color: var(--cb-pink-dark);
+  color: #fff;
+}
+
+.cb-auth-card a {
+  color: var(--cb-pink);
+  text-decoration: none;
+}
+
+.cb-auth-card a:hover {
+  text-decoration: underline;
+}
+
+.cb-auth-card .text-danger,
+.cb-auth-card .invalid-feedback,
+.cb-auth-card .validation-summary-errors {
+  color: #ff7aa8 !important;
+}
+
+.cb-profile-card {
+  background-color: var(--cb-card);
+  border: 1px solid var(--cb-border);
+  border-radius: 16px;
+  padding: 32px;
+  color: var(--cb-text);
+}
+
+.cb-profile-card dt {
+  font-weight: 500;
+}
+
+.cb-avatar {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  border-radius: 50%;
+  background-color: var(--cb-navy-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--cb-pink);
+  border: 2px solid var(--cb-pink);
+}
+
+.cb-badge-admin {
+  background-color: var(--cb-pink);
+  color: #fff;
+}
+
+.cb-badge-member {
+  background-color: var(--cb-navy-light);
+  color: var(--cb-text-muted);
+  border: 1px solid var(--cb-border);
+}
+
+/* Admin dashboard cards (Phase 3) - reuses .cb-auth-page as a generic dark page wrapper */
+.cb-card {
+  background-color: var(--cb-card);
+  border: 1px solid var(--cb-border);
+  border-radius: 16px;
+  padding: 28px;
+  color: var(--cb-text);
+}
+
+.cb-card h4 {
+  color: var(--cb-text);
+  font-weight: 700;
+}
+
+.btn-cb-secondary {
+  background-color: transparent;
+  border: 1px solid var(--cb-pink);
+  color: var(--cb-pink);
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+
+.btn-cb-secondary:hover,
+.btn-cb-secondary:focus {
+  background-color: rgba(239, 47, 119, 0.12);
+  border-color: var(--cb-pink);
+  color: var(--cb-pink);
+}
+
+/* Admin Movie management (Phase 5) */
+.btn-cb-danger {
+  background-color: transparent;
+  border: 1px solid #ff5f5f;
+  color: #ff5f5f;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+
+.btn-cb-danger:hover,
+.btn-cb-danger:focus {
+  background-color: rgba(255, 95, 95, 0.12);
+  border-color: #ff5f5f;
+  color: #ff5f5f;
+}
+
+.cb-table {
+  border-collapse: collapse;
+  color: var(--cb-text);
+  margin-bottom: 0;
+}
+
+.cb-table thead th {
+  color: var(--cb-text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--cb-border);
+  background-color: var(--cb-navy-light);
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.cb-table tbody td {
+  border-bottom: 1px solid var(--cb-border);
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.cb-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cb-table tbody tr:hover {
+  background-color: var(--cb-navy-light);
+}

@@ -1,0 +1,81 @@
+@model List<Movie>
+@{
+    ViewData["Title"] = "Manage Movies";
+}
+
+<div class="cb-auth-page">
+    <div class="mb-2">
+        <a class="text-muted-cb small d-inline-block mb-2" asp-controller="Admin" asp-action="Index">&larr; Admin Dashboard</a>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="text-white mb-1">Manage Movies</h2>
+            <p class="text-muted-cb mb-0">@Model.Count movie(s) in the catalog.</p>
+        </div>
+        <a class="btn btn-cb-primary" asp-controller="Movies" asp-action="Create">+ Add Movie</a>
+    </div>
+
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="cb-card mb-4" style="border-color: var(--cb-pink);">@TempData["StatusMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="cb-card mb-4" style="border-color:#ff5f5f; color:#ff9a9a;">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="cb-card text-center text-muted-cb">
+            No movies yet. Click "+ Add Movie" to create the first one.
+        </div>
+    }
+    else
+    {
+        <div class="cb-card p-0" style="overflow:hidden;">
+            <table class="cb-table w-100">
+                <thead>
+                    <tr>
+                        <th style="width:70px;"></th>
+                        <th>Title</th>
+                        <th>Genre</th>
+                        <th>Duration</th>
+                        <th>Rating</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var movie in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(movie.PosterUrl))
+                                {
+                                    <img src="@movie.PosterUrl" alt="" style="width:48px; height:68px; object-fit:cover; border-radius:6px;" />
+                                }
+                                else
+                                {
+                                    <div style="width:48px; height:68px; border-radius:6px; background:var(--cb-navy-light);"></div>
+                                }
+                            </td>
+                            <td class="fw-semibold">@movie.Title</td>
+                            <td class="text-muted-cb">@movie.Genre</td>
+                            <td class="text-muted-cb">@(movie.DurationMinutes > 0 ? movie.DurationMinutes + " min" : "-")</td>
+                            <td class="text-muted-cb">@movie.Rating</td>
+                            <td class="text-muted-cb">@movie.ReleaseStatus</td>
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-cb-secondary btn-sm" asp-controller="Movies" asp-action="Edit" asp-route-id="@movie.Id">Edit</a>
+                                <form asp-controller="Movies" asp-action="Delete" asp-route-id="@movie.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete this movie? This cannot be undone.');">
+                                    <button type="submit" class="btn btn-cb-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

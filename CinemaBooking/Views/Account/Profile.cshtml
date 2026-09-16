@@ -1,0 +1,37 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="cb-auth-page">
+    <div class="cb-profile-card mx-auto" style="max-width: 560px;">
+        <div class="d-flex align-items-center mb-4">
+            <div class="cb-avatar me-3">
+                @(string.IsNullOrEmpty(Model.Name) ? "?" : Model.Name.Substring(0, 1).ToUpper())
+            </div>
+            <div>
+                <h3 class="mb-1">@Model.Name</h3>
+                <span class="badge @(Model.IsAdmin ? "cb-badge-admin" : "cb-badge-member")">
+                    @(Model.IsAdmin ? "Administrator" : "Member")
+                </span>
+            </div>
+        </div>
+
+        <hr style="border-color: var(--cb-border);" />
+
+        <dl class="row mb-0">
+            <dt class="col-sm-4 text-muted-cb">Full Name</dt>
+            <dd class="col-sm-8">@Model.Name</dd>
+
+            <dt class="col-sm-4 text-muted-cb">Email</dt>
+            <dd class="col-sm-8">@Model.Email</dd>
+
+            <dt class="col-sm-4 text-muted-cb">Member Since</dt>
+            <dd class="col-sm-8">@Model.CreatedAt.ToString("MMMM d, yyyy")</dd>
+        </dl>
+
+        <form asp-controller="Account" asp-action="Logout" method="post" class="mt-4">
+            <button type="submit" class="btn btn-cb-primary">Logout</button>
+        </form>
+    </div>
+</div>
