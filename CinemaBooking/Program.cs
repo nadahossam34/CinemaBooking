@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using BuisnessLogicLayer.Service;
+using BuisnessLogicLayer.Services;
 
 namespace CinemaBooking
 {
@@ -59,6 +60,11 @@ namespace CinemaBooking
             });
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<ICinemaService, CinemaService>();
+
+            builder.Services.AddScoped<BookingService>();
+            builder.Services.AddScoped<PaymentService>();
+            builder.Services.AddScoped<QRCodeService>();
+
             builder.Services.AddScoped<IShowtimeService, ShowtimeService>(); // <--- ضفنا السطر هنا
 
             var app = builder.Build();
