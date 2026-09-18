@@ -1,0 +1,68 @@
+@model List<Cinema>
+@{
+    ViewData["Title"] = "Manage Cinemas";
+}
+
+<div class="cb-auth-page">
+    <div class="mb-2">
+        <a class="text-muted-cb small d-inline-block mb-2" asp-controller="Admin" asp-action="Index">&larr; Admin Dashboard</a>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="text-white mb-1">Manage Cinemas</h2>
+            <p class="text-muted-cb mb-0">@Model.Count cinema(s) in the catalog.</p>
+        </div>
+        <a class="btn btn-cb-primary" asp-controller="Cinemas" asp-action="Create">+ Add Cinema</a>
+    </div>
+
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="cb-card mb-4" style="border-color: var(--cb-pink);">@TempData["StatusMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="cb-card mb-4" style="border-color:#ff5f5f; color:#ff9a9a;">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="cb-card text-center text-muted-cb">
+            No cinemas yet. Click "+ Add Cinema" to create the first one.
+        </div>
+    }
+    else
+    {
+        <div class="cb-card p-0" style="overflow:hidden;">
+            <table class="cb-table w-100">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>City</th>
+                        <th>Address</th>
+                        <th>Coordinates</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cinema in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@cinema.Name</td>
+                            <td class="text-muted-cb">@cinema.City</td>
+                            <td class="text-muted-cb">@cinema.Address</td>
+                            <td class="text-muted-cb">@cinema.Latitude.ToString("0.0000"), @cinema.Longitude.ToString("0.0000")</td>
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-cb-secondary btn-sm" asp-controller="Cinemas" asp-action="Edit" asp-route-id="@cinema.Id">Edit</a>
+                                <form asp-controller="Cinemas" asp-action="Delete" asp-route-id="@cinema.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete this cinema? This cannot be undone.');">
+                                    <button type="submit" class="btn btn-cb-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

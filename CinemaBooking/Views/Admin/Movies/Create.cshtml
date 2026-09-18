@@ -1,0 +1,230 @@
+@model MovieFormViewModel
+@{
+    ViewData["Title"] = "Add Movie";
+}
+
+<div class="cb-auth-page">
+    <div class="mb-4">
+        <a class="text-muted-cb small d-inline-block mb-2" asp-controller="Admin" asp-action="Index">&larr; Admin Dashboard</a>
+        <h2 class="text-white mb-1">Add Movie</h2>
+        <p class="text-muted-cb mb-0">Search TMDB to auto-fill details, or enter them manually below.</p>
+    </div>
+
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="cb-card mb-4" style="border-color: var(--cb-pink);">
+            @TempData["StatusMessage"]
+        </div>
+    }
+
+    <div class="cb-card mb-4">
+        <h4 class="mb-3">Search TMDB</h4>
+        <div class="d-flex gap-2 mb-3">
+            <input type="text" id="tmdbQuery" class="form-control" placeholder="Search for a movie title..." />
+            <button type="button" id="tmdbSearchBtn" class="btn btn-cb-primary text-nowrap">Search</button>
+        </div>
+        <div id="tmdbStatus" class="text-muted-cb mb-2"></div>
+        <div id="tmdbResults" class="row g-3"></div>
+    </div>
+
+    <div class="cb-card">
+        <h4 class="mb-3">Movie Details</h4>
+        <form asp-controller="Movies" asp-action="Create" method="post" novalidate id="movieForm">
+            <div asp-validation-summary="ModelOnly" class="mb-3"></div>
+
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="TmdbId" class="form-label"></label>
+                    <input asp-for="TmdbId" class="form-control" readonly />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Genre" class="form-label"></label>
+                    <input asp-for="Genre" class="form-control" placeholder="e.g. Science Fiction, Adventure" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="DurationMinutes" class="form-label"></label>
+                    <input asp-for="DurationMinutes" class="form-control" />
+                    <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Rating" class="form-label"></label>
+                    <input asp-for="Rating" class="form-control" placeholder="e.g. 8.2" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PosterUrl" class="form-label"></label>
+                    <input asp-for="PosterUrl" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TrailerUrl" class="form-label"></label>
+                    <input asp-for="TrailerUrl" class="form-control" placeholder="Optional - add manually" />
+                </div>
+            </div>
+
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ReleaseStatus" class="form-label"></label>
+                    <input asp-for="ReleaseStatus" class="form-control" placeholder="e.g. Released" />
+                </div>
+                <div class="col-md-6 mb-3 text-center">
+                    <img id="posterPreview" src="" alt="Poster preview" style="max-height:160px; display:none; border-radius:10px;" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-cb-primary">Save Movie</button>
+            <a class="btn btn-cb-secondary" asp-controller="Movies" asp-action="Index">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const searchBtn = document.getElementById('tmdbSearchBtn');
+            const queryInput = document.getElementById('tmdbQuery');
+            const resultsEl = document.getElementById('tmdbResults');
+            const statusEl = document.getElementById('tmdbStatus');
+            const posterPreview = document.getElementById('posterPreview');
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str == null ? '' : String(str);
+                return div.innerHTML;
+            }
+
+            function setField(id, value) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = value == null ? '' : value;
+                }
+            }
+
+            async function searchTmdb() {
+                const query = queryInput.value.trim();
+                resultsEl.innerHTML = '';
+
+                if (!query) {
+                    statusEl.textContent = 'Enter a movie title to search.';
+                    return;
+                }
+
+                statusEl.textContent = 'Searching TMDB...';
+
+                let data;
+                try {
+                    const response = await fetch('/Movies/SearchTmdb?query=' + encodeURIComponent(query), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    data = await response.json();
+                } catch (err) {
+                    statusEl.textContent = 'Could not reach TMDB. Please try again.';
+                    return;
+                }
+
+                if (!data.success) {
+                    statusEl.textContent = data.message || 'TMDB search failed.';
+                    return;
+                }
+
+                if (!data.results || data.results.length === 0) {
+                    statusEl.textContent = 'No movies found for "' + query + '".';
+                    return;
+                }
+
+                statusEl.textContent = '';
+
+                data.results.forEach(function (movie) {
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-md-3 col-lg-2';
+
+                    const poster = movie.posterUrl
+                        ? '<img src="' + movie.posterUrl + '" class="w-100 mb-2" style="border-radius:8px; aspect-ratio:2/3; object-fit:cover;" alt="" />'
+                        : '<div class="w-100 mb-2 d-flex align-items-center justify-content-center text-muted-cb" style="aspect-ratio:2/3; background:var(--cb-navy-light); border-radius:8px;">No image</div>';
+
+                    const rating = (typeof movie.voteAverage === 'number') ? movie.voteAverage.toFixed(1) : 'N/A';
+
+                    col.innerHTML =
+                        '<div class="cb-card p-2 h-100 d-flex flex-column">' +
+                            poster +
+                            '<div class="fw-bold small mb-1">' + escapeHtml(movie.title || 'Untitled') + '</div>' +
+                            '<div class="text-muted-cb small mb-2">' +
+                                escapeHtml(movie.releaseDate || 'Unknown date') + ' &middot; &#9733; ' + rating +
+                            '</div>' +
+                            '<button type="button" class="btn btn-cb-secondary btn-sm mt-auto select-tmdb-btn" data-tmdb-id="' + movie.tmdbId + '">Select</button>' +
+                        '</div>';
+
+                    resultsEl.appendChild(col);
+                });
+
+                resultsEl.querySelectorAll('.select-tmdb-btn').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        selectTmdbMovie(btn.getAttribute('data-tmdb-id'));
+                    });
+                });
+            }
+
+            async function selectTmdbMovie(tmdbId) {
+                statusEl.textContent = 'Loading movie details...';
+
+                let data;
+                try {
+                    const response = await fetch('/Movies/TmdbDetails/' + tmdbId, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    data = await response.json();
+                } catch (err) {
+                    statusEl.textContent = 'Could not reach TMDB. Please try again.';
+                    return;
+                }
+
+                if (!data.success) {
+                    statusEl.textContent = data.message || 'Could not load movie details.';
+                    return;
+                }
+
+                const movie = data.movie;
+                setField('Title', movie.title);
+                setField('Genre', movie.genre);
+                setField('DurationMinutes', movie.durationMinutes || 0);
+                setField('Description', movie.description);
+                setField('Rating', movie.rating);
+                setField('PosterUrl', movie.posterUrl);
+                setField('ReleaseStatus', movie.releaseStatus);
+                setField('TmdbId', movie.tmdbId || 0);
+
+                if (movie.posterUrl) {
+                    posterPreview.src = movie.posterUrl;
+                    posterPreview.style.display = 'inline-block';
+                } else {
+                    posterPreview.style.display = 'none';
+                }
+
+                statusEl.textContent = 'Details loaded from TMDB. Review and save below.';
+            }
+
+            searchBtn.addEventListener('click', searchTmdb);
+            queryInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchTmdb();
+                }
+            });
+        })();
+    </script>
+}
