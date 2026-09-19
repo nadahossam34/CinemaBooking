@@ -1,0 +1,213 @@
+@model IEnumerable<Booking>
+@{
+    ViewData["Title"] = "My Bookings";
+    var bookingList = Model?.ToList() ?? new List<Booking>();
+    var upcoming = bookingList.Where(b => b.Showtime?.Date >= DateOnly.FromDateTime(DateTime.Today)).ToList();
+    var past = bookingList.Where(b => b.Showtime?.Date < DateOnly.FromDateTime(DateTime.Today)).ToList();
+}
+
+<div class="flex flex-col w-full">
+
+    <!-- ════════════════════════════════════════════
+         PAGE HEADER
+    ════════════════════════════════════════════ -->
+    <div class="relative w-full overflow-hidden bg-surface-container-lowest">
+        <div class="absolute -top-24 left-1/3 w-96 h-96 bg-primary-container/10 rounded-full blur-[130px] pointer-events-none"></div>
+        <div class="w-full px-gutter-mobile md:px-margin pt-space-xl pb-space-lg flex flex-col gap-space-md relative z-10">
+            <div class="flex items-center gap-space-xs">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-container">Your Reservations</span>
+            </div>
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+                <div class="flex flex-col gap-space-xs">
+                    <h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">My Bookings</h1>
+                    <p class="font-body-md text-body-md text-secondary">View and manage all your StarLight cinema reservations.</p>
+                </div>
+                <div class="flex items-center gap-space-sm self-start md:self-auto">
+                    <div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded-lg border border-surface-variant/60 shadow-sm">
+                        <span class="material-symbols-outlined text-tertiary text-[18px]">confirmation_number</span>
+                        <span class="font-label-md text-label-md text-on-surface font-semibold">@bookingList.Count Total</span>
+                        <span class="text-secondary/40 font-body-sm">•</span>
+                        <span class="font-label-sm text-label-sm text-secondary uppercase">@upcoming.Count Upcoming</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full px-gutter-mobile md:px-margin py-space-xl flex flex-col gap-space-xl">
+
+        @if (bookingList.Count == 0)
+        {
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center bg-surface-container border border-surface-variant/80 rounded-2xl p-space-xl text-center max-w-md mx-auto shadow-[0_12px_36px_rgba(0,0,0,0.7)]">
+                <div class="w-16 h-16 rounded-full bg-surface-container-high text-secondary/60 flex items-center justify-center mb-space-md border border-surface-variant/50">
+                    <span class="material-symbols-outlined text-[32px]">confirmation_number</span>
+                </div>
+                <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">No bookings yet</h2>
+                <p class="font-body-sm text-body-sm text-secondary mt-1 max-w-xs leading-relaxed">
+                    You haven't made any reservations. Browse our current screenings and book your first seat!
+                </p>
+                <a asp-controller="Movies" asp-action="Index"
+                   class="mt-space-md bg-primary-container hover:bg-[#b20710] text-on-primary-container font-label-md text-label-md px-space-xl py-3 rounded-lg shadow-[0_0_16px_rgba(229,9,20,0.4)] transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">movie</span>
+                    Explore Movies
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- UPCOMING BOOKINGS -->
+            @if (upcoming.Count > 0)
+            {
+                <div class="flex flex-col gap-space-md">
+                    <div class="flex items-center gap-space-sm pb-space-sm border-b border-surface-variant/30">
+                        <span class="material-symbols-outlined text-tertiary text-[20px]">upcoming</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface">Upcoming</h2>
+                        <span class="bg-primary-container text-on-primary-container font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold shadow-sm">@upcoming.Count</span>
+                    </div>
+                    <div class="flex flex-col gap-space-md">
+                        @foreach (var booking in upcoming)
+                        {
+                            var totalAmount = booking.BookingSeats?.Sum(bs => bs.PricePaid) ?? 0;
+                            var seatLabels = booking.BookingSeats != null
+                                ? string.Join(", ", booking.BookingSeats.Select(bs => $"{bs.Seat?.RowLabel}{bs.Seat?.SeatNumber}"))
+                                : "—";
+                            <div class="bg-surface-container-low rounded-xl border border-surface-variant/50 hover:border-primary-container/40 overflow-hidden transition-all hover:shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
+                                <!-- Accent stripe -->
+                                <div class="h-0.5 w-full bg-gradient-to-r from-primary-container/80 to-transparent"></div>
+                                <div class="p-space-lg flex flex-col md:flex-row gap-space-lg items-start md:items-center">
+                                    <!-- Icon Block -->
+                                    <div class="w-12 h-12 rounded-xl bg-primary-container/15 border border-primary-container/30 flex items-center justify-center shrink-0 shadow-[0_0_16px_rgba(229,9,20,0.2)]">
+                                        <span class="material-symbols-outlined text-primary-container text-[22px]">confirmation_number</span>
+                                    </div>
+                                    <!-- Main Info -->
+                                    <div class="flex-1 flex flex-col gap-space-xs">
+                                        <div class="flex items-center gap-space-sm flex-wrap">
+                                            <h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">
+                                                @(booking.Showtime?.Movie?.Title ?? "Unknown Movie")
+                                            </h3>
+                                            <span class="bg-surface-container text-secondary font-label-sm text-label-sm px-space-sm py-0.5 rounded font-mono tracking-widest border border-surface-variant/60">
+                                                #@booking.BookingReference
+                                            </span>
+                                        </div>
+                                        <div class="flex flex-wrap gap-x-space-lg gap-y-1 text-secondary font-body-sm text-body-sm">
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="material-symbols-outlined text-[14px]">theaters</span>
+                                                <span>@(booking.Showtime?.Cinema?.Name ?? "—")</span>
+                                            </div>
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="material-symbols-outlined text-[14px]">calendar_month</span>
+                                                <span>@(booking.Showtime?.Date.ToString("dddd, MMM d yyyy") ?? "—")</span>
+                                            </div>
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="material-symbols-outlined text-[14px]">schedule</span>
+                                                <span>@(booking.Showtime?.Time.ToString("hh\\:mm") ?? "—")</span>
+                                            </div>
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="material-symbols-outlined text-[14px]">event_seat</span>
+                                                <span>@seatLabels</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Total & Ticket -->
+                                    <div class="flex items-center gap-space-md shrink-0 self-start md:self-auto">
+                                        <div class="text-right">
+                                            <div class="font-label-sm text-label-sm uppercase tracking-widest text-secondary/70">Total</div>
+                                            <div class="font-headline-sm text-headline-sm text-on-surface font-bold">EGP @totalAmount.ToString("N2")</div>
+                                        </div>
+                                        <a asp-controller="Booking" asp-action="Ticket" asp-route-bookingId="@booking.Id"
+                                           class="flex items-center gap-space-xs px-space-md py-2.5 bg-primary-container hover:bg-[#b20710] text-on-primary-container font-label-md text-label-md rounded-lg shadow-[0_0_12px_rgba(229,9,20,0.35)] hover:shadow-[0_0_18px_rgba(229,9,20,0.55)] transition-all">
+                                            <span class="material-symbols-outlined text-[16px]">qr_code_2</span>
+                                            Ticket
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- PAST BOOKINGS -->
+            @if (past.Count > 0)
+            {
+                <div class="flex flex-col gap-space-md">
+                    <div class="flex items-center gap-space-sm pb-space-sm border-b border-surface-variant/30">
+                        <span class="material-symbols-outlined text-secondary text-[20px]">history</span>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface">Past Screenings</h2>
+                        <span class="bg-surface-container text-secondary font-label-sm text-label-sm px-2 py-0.5 rounded-full border border-surface-variant/60">@past.Count</span>
+                    </div>
+                    <div class="flex flex-col gap-space-md">
+                        @foreach (var booking in past)
+                        {
+                            var totalAmount = booking.BookingSeats?.Sum(bs => bs.PricePaid) ?? 0;
+                            var seatLabels = booking.BookingSeats != null
+                                ? string.Join(", ", booking.BookingSeats.Select(bs => $"{bs.Seat?.RowLabel}{bs.Seat?.SeatNumber}"))
+                                : "—";
+                            <div class="bg-surface-container-low rounded-xl border border-surface-variant/40 overflow-hidden opacity-80 hover:opacity-100 transition-all">
+                                <div class="p-space-lg flex flex-col md:flex-row gap-space-lg items-start md:items-center">
+                                    <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-secondary text-[22px]">theaters</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col gap-space-xs">
+                                        <div class="flex items-center gap-space-sm flex-wrap">
+                                            <h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">
+                                                @(booking.Showtime?.Movie?.Title ?? "Unknown Movie")
+                                            </h3>
+                                            <span class="bg-surface-container text-secondary font-label-sm text-label-sm px-space-sm py-0.5 rounded font-mono tracking-widest border border-surface-variant/60">
+                                                #@booking.BookingReference
+                                            </span>
+                                        </div>
+                                        <div class="flex flex-wrap gap-x-space-lg gap-y-1 text-secondary font-body-sm text-body-sm">
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="material-symbols-outlined text-[14px]">theaters</span>
+                                                <span>@(booking.Showtime?.Cinema?.Name ?? "—")</span>
+                                            </div>
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="material-symbols-outlined text-[14px]">calendar_month</span>
+                                                <span>@(booking.Showtime?.Date.ToString("MMM d yyyy") ?? "—")</span>
+                                            </div>
+                                            <div class="flex items-center gap-space-xs">
+                                                <span class="material-symbols-outlined text-[14px]">event_seat</span>
+                                                <span>@seatLabels</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-space-md shrink-0 self-start md:self-auto">
+                                        <div class="text-right">
+                                            <div class="font-label-sm text-label-sm uppercase tracking-widest text-secondary/70">Paid</div>
+                                            <div class="font-label-lg text-label-lg text-secondary font-bold">EGP @totalAmount.ToString("N2")</div>
+                                        </div>
+                                        <span class="flex items-center gap-space-xs px-space-md py-2.5 bg-surface-container text-secondary font-label-md text-label-md rounded-lg border border-surface-variant/50">
+                                            <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                            Attended
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- CTA Banner -->
+        <div class="relative rounded-xl overflow-hidden bg-surface-container-low border border-surface-variant/40 p-space-lg flex flex-col md:flex-row items-center justify-between gap-space-lg">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-primary-container/10 rounded-full blur-[60px] pointer-events-none"></div>
+            <div class="flex flex-col gap-space-xs z-10">
+                <div class="flex items-center gap-space-xs">
+                    <span class="material-symbols-outlined text-primary-container text-[18px]">movie</span>
+                    <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-container">New Releases</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Ready for Your Next Film?</h3>
+                <p class="font-body-sm text-body-sm text-secondary">Explore what's currently screening across all StarLight flagship locations.</p>
+            </div>
+            <a asp-controller="Movies" asp-action="Index"
+               class="flex items-center gap-space-sm px-space-xl py-3 bg-primary-container hover:bg-[#b20710] text-on-primary-container font-label-lg text-label-lg rounded-lg shadow-[0_0_16px_rgba(229,9,20,0.4)] transition-all shrink-0 z-10">
+                <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
+                Book Now
+            </a>
+        </div>
+    </div>
+</div>

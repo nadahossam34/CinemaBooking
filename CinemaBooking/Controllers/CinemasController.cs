@@ -1,54 +1,127 @@
+using BuisnessLogicLayer.Service;
 using CinemaBooking.Data;
 using CinemaBooking.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using BuisnessLogicLayer.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CinemaBooking.Controllers
-namespace PresentationLayer.Controllers
 {
-    // Views live under Views/Admin/Cinemas/ (explicit paths below), same approach
-    // as MoviesController in Phase 5.
-    [Authorize(Roles = "Admin")]
     public class CinemasController : Controller
     {
         private const string ViewsFolder = "~/Views/Admin/Cinemas/";
         private readonly ICinemaService _cinemaService;
-
         private readonly AppDbContext _context;
 
-        public CinemasController(AppDbContext context)
-        public CinemasController(ICinemaService cinemaService)
+        public CinemasController(ICinemaService cinemaService, AppDbContext context)
         {
-            _context = context;
             _cinemaService = cinemaService;
+            _context = context;
         }
+
+        // ==========================================
+        // Customer-facing actions (Stitch Design UI)
+        // ==========================================
 
         // GET: /Cinemas
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            var cinemas = await _cinemaService.GetAllCinemasAsync();
+            return View(cinemas);
+        }
+
+        // GET: /Cinemas/Details/5
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var cinema = await _cinemaService.GetCinemaByIdAsync(id);
+            if (cinema == null)
+            {
+                return NotFound();
+            }
+
+            return View(cinema);
+        }
+
+        // GET: /Cinemas/Nearest?latitude=...&longitude=...
+        [HttpGet]
+        public async Task<IActionResult> Nearest(double latitude, double longitude)
+        {
+            var cinema = await _cinemaService.GetNearestCinemaAsync(latitude, longitude);
+            if (cinema == null)
+            {
+                return NotFound();
+            }
+
+            return View(cinema);
+        }
+
+        // GET: /Cinemas/GetCinemasJson — returns all cinema locations as JSON for the interactive map
+        [HttpGet]
+        public async Task<IActionResult> GetCinemasJson()
+        {
+            var cinemas = await _cinemaService.GetAllCinemasAsync();
+            var result = cinemas.Select(c => new
+            {
+                c.Id,
+                c.Name,
+                c.City,
+                c.Address,
+                lat = (double)c.Latitude,
+                lng = (double)c.Longitude
+            });
+            return Json(result);
+        }
+
+        // GET: /Cinemas/NearestJson?latitude=...&longitude=... — returns nearest cinema as JSON for AJAX
+        [HttpGet]
+        public async Task<IActionResult> NearestJson(double latitude, double longitude)
+        {
+            var cinema = await _cinemaService.GetNearestCinemaAsync(latitude, longitude);
+            if (cinema == null)
+            {
+                return Json(null);
+            }
+            return Json(new
+            {
+                cinema.Id,
+                cinema.Name,
+                cinema.City,
+                cinema.Address,
+                lat = (double)cinema.Latitude,
+                lng = (double)cinema.Longitude,
+                cinema.DistanceKm
+            });
+        }
+
+        // ==========================================
+        // Admin management actions
+        // ==========================================
+
+        // GET: /Cinemas/Manage
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> Manage()
+        {
             var cinemas = await _context.Cinemas
                 .AsNoTracking()
                 .OrderBy(c => c.Name)
                 .ToListAsync();
-            var cinemas = await _cinemaService.GetAllCinemasAsync();
 
             return View(ViewsFolder + "Index.cshtml", cinemas);
-            return View(cinemas);
         }
 
         // GET: /Cinemas/Create
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
-        public async Task<IActionResult> Details(int id)
         {
             return View(ViewsFolder + "Create.cshtml", new CinemaFormViewModel());
         }
-            var cinema = await _cinemaService.GetCinemaByIdAsync(id);
 
         // POST: /Cinemas/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CinemaFormViewModel model)
@@ -71,10 +144,11 @@ namespace PresentationLayer.Controllers
             await _context.SaveChangesAsync();
 
             TempData["StatusMessage"] = $"\"{cinema.Name}\" was added.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Manage));
         }
 
         // GET: /Cinemas/Edit/5
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -101,6 +175,7 @@ namespace PresentationLayer.Controllers
         }
 
         // POST: /Cinemas/Edit/5
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CinemaFormViewModel model)
@@ -108,21 +183,14 @@ namespace PresentationLayer.Controllers
             if (id != model.Id)
             {
                 return BadRequest();
-            return View(cinema);
-        }
+            }
 
             if (!ModelState.IsValid)
-        [HttpGet]
-        public async Task<IActionResult> Nearest(
-            double latitude,
-            double longitude)
-        {
+            {
                 return View(ViewsFolder + "Edit.cshtml", model);
             }
 
             var cinema = await _context.Cinemas.FindAsync(id);
-            var cinema = await _cinemaService
-                .GetNearestCinemaAsync(latitude, longitude);
 
             if (cinema == null)
             {
@@ -138,28 +206,11 @@ namespace PresentationLayer.Controllers
             await _context.SaveChangesAsync();
 
             TempData["StatusMessage"] = $"\"{cinema.Name}\" was updated.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Manage));
         }
 
         // POST: /Cinemas/Delete/5
-        //
-        // Cinema sits above two separate relationship chains:
-        //   Cinema -> Hall (required FK, no OnDelete configured -> EF default Cascade)
-        //       Hall -> Seat (required FK, unconfigured -> Cascade)
-        //           Seat -> BookingSeat (required FK, unconfigured -> Cascade)
-        //       Hall -> Showtime (required FK, unconfigured -> Cascade)
-        //   Cinema -> Showtime (required FK, explicitly Restrict in AppDbContext)
-        //
-        // The direct Cinema->Showtime FK is Restrict, but Halls sit on a fully
-        // Cascade path that reaches Seats, BookingSeats, and even Showtimes
-        // (via Hall.Id, independently of the Restrict on Cinema.Id). Relying on
-        // the schema alone risks silently deleting seat/booking history through
-        // that indirect path. So, without touching the schema, this blocks the
-        // delete up front if the cinema still has ANY Halls or ANY Showtimes
-        // referencing it, rather than letting cascade/restrict sort it out.
-        //
-        // Note: this project has no "Ticket" or "Screen" entity - the closest
-        // real equivalents are Booking (via Showtime) and Hall, both covered here.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -169,7 +220,7 @@ namespace PresentationLayer.Controllers
             if (cinema == null)
             {
                 TempData["ErrorMessage"] = "That cinema no longer exists.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Manage));
             }
 
             var hasHalls = await _context.Halls.AnyAsync(h => h.CinemaId == id);
@@ -183,7 +234,7 @@ namespace PresentationLayer.Controllers
 
                 TempData["ErrorMessage"] =
                     $"\"{cinema.Name}\" can't be deleted because it still has {string.Join(" and ", blockers)} associated with it. Remove those first.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Manage));
             }
 
             try
@@ -194,15 +245,11 @@ namespace PresentationLayer.Controllers
             }
             catch (DbUpdateException)
             {
-                // Defense in depth: catches any late FK violation (e.g. a race
-                // condition adding a hall/showtime after the check above)
-                // instead of letting it surface as an unhandled exception.
                 TempData["ErrorMessage"] =
                     $"\"{cinema.Name}\" can't be deleted because it's still referenced by other records.";
             }
 
-            return RedirectToAction(nameof(Index));
-            return View(cinema);
+            return RedirectToAction(nameof(Manage));
         }
     }
 }

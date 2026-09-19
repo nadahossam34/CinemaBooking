@@ -1,4 +1,4 @@
-﻿using CinemaBooking.Models;
+using CinemaBooking.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CinemaBooking.Data
@@ -27,6 +27,9 @@ namespace CinemaBooking.Data
             // 1. تحديد المفتاح المركب (Composite Primary Key) لجدول BookingSeat
             modelBuilder.Entity<BookingSeat>()
                 .HasKey(bs => new { bs.BookingId, bs.SeatId });
+
+            modelBuilder.Entity<Booking>()
+                .Ignore(b => b.BookingDate);
 
             // 2. علاقة One-to-One بين Booking و Payment
             modelBuilder.Entity<Booking>()

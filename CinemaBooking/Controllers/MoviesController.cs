@@ -1,3 +1,4 @@
+using BuisnessLogicLayer.Service;
 using CinemaBooking.Data;
 using CinemaBooking.Services;
 using CinemaBooking.ViewModels;
@@ -7,25 +8,56 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CinemaBooking.Controllers
 {
-    // Views live under Views/Admin/Movies/ (explicit paths below) rather than the
-    // conventional Views/Movies/, per the Phase 5 requirement.
-    [Authorize(Roles = "Admin")]
     public class MoviesController : Controller
     {
         private const string ViewsFolder = "~/Views/Admin/Movies/";
 
         private readonly AppDbContext _context;
         private readonly ITmdbService _tmdbService;
+        private readonly IMovieService _movieService;
 
-        public MoviesController(AppDbContext context, ITmdbService tmdbService)
+        public MoviesController(AppDbContext context, ITmdbService tmdbService, IMovieService movieService)
         {
             _context = context;
             _tmdbService = tmdbService;
+            _movieService = movieService;
         }
+
+        // ==========================================
+        // Customer-facing actions (Stitch Design UI)
+        // ==========================================
 
         // GET: /Movies
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, string? genre)
+        {
+            var movies = await _movieService.GetAllMoviesAsync();
+            ViewData["InitialSearch"] = search ?? "";
+            ViewData["InitialGenre"] = genre ?? "";
+            return View(movies);
+        }
+
+        // GET: /Movies/Details/5
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var movie = await _movieService.GetMovieByIdAsync(id);
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            return View(movie);
+        }
+
+        // ==========================================
+        // Admin management actions
+        // ==========================================
+
+        // GET: /Movies/Manage
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> Manage()
         {
             var movies = await _context.Movies
                 .AsNoTracking()
@@ -36,6 +68,7 @@ namespace CinemaBooking.Controllers
         }
 
         // GET: /Movies/Create
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -43,6 +76,7 @@ namespace CinemaBooking.Controllers
         }
 
         // POST: /Movies/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MovieFormViewModel model)
@@ -69,10 +103,11 @@ namespace CinemaBooking.Controllers
             await _context.SaveChangesAsync();
 
             TempData["StatusMessage"] = $"\"{movie.Title}\" was added to the catalog.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Manage));
         }
 
         // GET: /Movies/Edit/5
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -103,6 +138,7 @@ namespace CinemaBooking.Controllers
         }
 
         // POST: /Movies/Edit/5
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MovieFormViewModel model)
@@ -137,16 +173,11 @@ namespace CinemaBooking.Controllers
             await _context.SaveChangesAsync();
 
             TempData["StatusMessage"] = $"\"{movie.Title}\" was updated.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Manage));
         }
 
         // POST: /Movies/Delete/5
-        // Safe delete: Showtime.MovieId is a required FK with no explicit OnDelete
-        // configured in AppDbContext, so EF Core's convention default is Cascade.
-        // Rather than rely on that (which could silently wipe showtimes, or throw
-        // a raw FK-constraint exception if any of those showtimes have bookings,
-        // since Booking->Showtime is Restrict), this checks first and blocks the
-        // delete with a clear message if any showtimes reference the movie.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -156,7 +187,7 @@ namespace CinemaBooking.Controllers
             if (movie == null)
             {
                 TempData["ErrorMessage"] = "That movie no longer exists.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Manage));
             }
 
             var hasShowtimes = await _context.Showtimes.AnyAsync(s => s.MovieId == id);
@@ -165,7 +196,7 @@ namespace CinemaBooking.Controllers
             {
                 TempData["ErrorMessage"] =
                     $"\"{movie.Title}\" can't be deleted because it still has showtimes scheduled. Remove those showtimes first.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Manage));
             }
 
             try
@@ -176,18 +207,15 @@ namespace CinemaBooking.Controllers
             }
             catch (DbUpdateException)
             {
-                // Defense in depth: if something else still references this movie
-                // (or a race condition added a showtime after the check above),
-                // fail safely instead of throwing an unhandled exception.
                 TempData["ErrorMessage"] =
                     $"\"{movie.Title}\" can't be deleted because it's still referenced by other records.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Manage));
         }
 
         // GET: /Movies/SearchTmdb?query=...
-        // AJAX endpoint used by the Create page's TMDB search box.
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> SearchTmdb(string query, CancellationToken cancellationToken)
         {
@@ -211,8 +239,7 @@ namespace CinemaBooking.Controllers
         }
 
         // GET: /Movies/TmdbDetails/{id}
-        // AJAX endpoint used when the admin selects a search result; returns the
-        // fields mapped onto the existing Movie entity so the form can be populated.
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> TmdbDetails(int id, CancellationToken cancellationToken)
         {

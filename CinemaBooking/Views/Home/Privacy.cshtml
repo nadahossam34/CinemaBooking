@@ -1,6 +1,25 @@
-﻿@{
+@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="flex flex-col w-full px-gutter-mobile md:px-margin py-space-xl max-w-4xl mx-auto">
+    <div class="bg-surface-container-low rounded-2xl p-space-xl border border-outline-variant/30 shadow-2xl">
+        <h1 class="font-headline-xl text-3xl md:text-4xl text-on-surface font-bold mb-space-md">
+            Privacy Policy &amp; Terms
+        </h1>
+        <div class="font-body-md text-secondary space-y-4 leading-relaxed">
+            <p>
+                At StarLight Cinemas, we respect your privacy and are committed to protecting the personal data you share with us when booking showtimes, browsing auditorium formats, or utilizing our concierge services.
+            </p>
+            <p>
+                We do not sell or disclose your personal contact or payment information to third parties. All seat reservations and ticket purchases are secured with industry-standard encryption protocols.
+            </p>
+            <div class="pt-space-md">
+                <a asp-controller="Cinemas" asp-action="Index" class="inline-flex items-center gap-2 px-space-lg py-2.5 bg-primary-container text-on-primary-container font-label-md rounded-lg shadow-md hover:bg-inverse-primary transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    <span>Return to StarLight Cinemas</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

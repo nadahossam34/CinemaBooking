@@ -1,51 +1,148 @@
 @model RegisterViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create Account";
 }
 
-<div class="cb-auth-page">
-    <div class="cb-auth-card">
-        <div class="text-center mb-4">
-            <h2>Cine<span class="brand-accent" style="color: var(--cb-pink);">Verse</span></h2>
-            <p class="text-muted-cb mb-0">Create your account to start booking</p>
+<div class="relative min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-gutter-mobile py-space-xl overflow-hidden">
+
+    <!-- Ambient Glow Orbs -->
+    <div class="absolute pointer-events-none inset-0 overflow-hidden">
+        <div class="absolute -top-24 right-1/4 w-80 h-80 bg-primary-container/15 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-0 left-1/4 w-64 h-64 bg-primary-container/10 rounded-full blur-[100px]"></div>
+    </div>
+
+    <!-- Card -->
+    <div class="relative z-10 w-full max-w-md bg-surface-container border border-surface-variant/60 rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden">
+
+        <!-- Card Top Accent -->
+        <div class="h-1 w-full bg-gradient-to-r from-primary-container via-[#ff6b6b] to-primary-container"></div>
+
+        <div class="p-space-xl flex flex-col gap-space-lg">
+
+            <!-- Header -->
+            <div class="flex flex-col items-center gap-space-sm text-center">
+                <div class="w-14 h-14 rounded-full bg-primary-container/15 border border-primary-container/30 flex items-center justify-center shadow-[0_0_24px_rgba(229,9,20,0.3)]">
+                    <span class="material-symbols-outlined text-primary-container text-[28px]">person_add</span>
+                </div>
+                <div>
+                    <h1 class="font-headline-md text-headline-md text-on-surface tracking-tight">Create Your Account</h1>
+                    <p class="font-body-sm text-body-sm text-secondary mt-0.5">Join StarLight to start booking your seats</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form asp-controller="Account" asp-action="Register" method="post" novalidate class="flex flex-col gap-space-md">
+
+                <!-- Validation Summary -->
+                <div asp-validation-summary="ModelOnly"
+                     class="bg-error-container/20 border border-error/40 text-on-error-container font-body-sm text-body-sm rounded-lg px-space-md py-space-sm"></div>
+
+                <!-- Full Name -->
+                <div class="flex flex-col gap-space-xs">
+                    <label asp-for="Name" class="font-label-md text-label-md text-secondary uppercase tracking-wide"></label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-secondary/60 pointer-events-none text-[18px]">badge</span>
+                        <input asp-for="Name"
+                               class="w-full bg-surface-container-low border border-surface-variant/80 rounded-lg pl-10 pr-space-md py-3 text-on-surface placeholder:text-secondary/50 font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container focus:shadow-[0_0_12px_rgba(229,9,20,0.25)] transition-all"
+                               placeholder="Your full name"
+                               autocomplete="name" />
+                    </div>
+                    <span asp-validation-for="Name" class="font-body-sm text-body-sm text-error"></span>
+                </div>
+
+                <!-- Email -->
+                <div class="flex flex-col gap-space-xs">
+                    <label asp-for="Email" class="font-label-md text-label-md text-secondary uppercase tracking-wide"></label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-secondary/60 pointer-events-none text-[18px]">mail</span>
+                        <input asp-for="Email"
+                               class="w-full bg-surface-container-low border border-surface-variant/80 rounded-lg pl-10 pr-space-md py-3 text-on-surface placeholder:text-secondary/50 font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container focus:shadow-[0_0_12px_rgba(229,9,20,0.25)] transition-all"
+                               placeholder="you@example.com"
+                               autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email" class="font-body-sm text-body-sm text-error"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="flex flex-col gap-space-xs">
+                    <label asp-for="Password" class="font-label-md text-label-md text-secondary uppercase tracking-wide"></label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-secondary/60 pointer-events-none text-[18px]">lock</span>
+                        <input asp-for="Password" id="password-input"
+                               class="w-full bg-surface-container-low border border-surface-variant/80 rounded-lg pl-10 pr-12 py-3 text-on-surface placeholder:text-secondary/50 font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container focus:shadow-[0_0_12px_rgba(229,9,20,0.25)] transition-all"
+                               placeholder="At least 6 characters"
+                               autocomplete="new-password" />
+                        <button type="button" id="toggle-password"
+                                class="absolute right-3 text-secondary/60 hover:text-secondary transition-colors cursor-pointer bg-transparent border-0 p-0">
+                            <span class="material-symbols-outlined text-[18px]" id="toggle-icon">visibility</span>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="font-body-sm text-body-sm text-error"></span>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="flex flex-col gap-space-xs">
+                    <label asp-for="ConfirmPassword" class="font-label-md text-label-md text-secondary uppercase tracking-wide"></label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-secondary/60 pointer-events-none text-[18px]">lock_reset</span>
+                        <input asp-for="ConfirmPassword" id="confirm-password-input"
+                               class="w-full bg-surface-container-low border border-surface-variant/80 rounded-lg pl-10 pr-12 py-3 text-on-surface placeholder:text-secondary/50 font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container focus:shadow-[0_0_12px_rgba(229,9,20,0.25)] transition-all"
+                               placeholder="Re-enter your password"
+                               autocomplete="new-password" />
+                        <button type="button" id="toggle-confirm-password"
+                                class="absolute right-3 text-secondary/60 hover:text-secondary transition-colors cursor-pointer bg-transparent border-0 p-0">
+                            <span class="material-symbols-outlined text-[18px]" id="toggle-confirm-icon">visibility</span>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="font-body-sm text-body-sm text-error"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                        class="w-full py-3.5 bg-primary-container hover:bg-[#b20710] text-on-primary-container font-label-lg text-label-lg rounded-xl shadow-[0_0_20px_rgba(229,9,20,0.4)] hover:shadow-[0_0_32px_rgba(229,9,20,0.65)] transition-all active:scale-[0.98] flex items-center justify-center gap-space-sm mt-space-xs">
+                    <span class="material-symbols-outlined text-[20px]">person_add</span>
+                    Create Account
+                </button>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-space-sm">
+                    <div class="flex-1 h-px bg-surface-variant/50"></div>
+                    <span class="font-body-sm text-body-sm text-secondary/60">or</span>
+                    <div class="flex-1 h-px bg-surface-variant/50"></div>
+                </div>
+
+                <!-- Login Link -->
+                <p class="text-center font-body-sm text-body-sm text-secondary">
+                    Already have an account?
+                    <a asp-controller="Account" asp-action="Login"
+                       class="text-primary hover:text-primary-container font-label-md transition-colors">
+                        Sign in
+                    </a>
+                </p>
+            </form>
+
         </div>
-
-        <form asp-controller="Account" asp-action="Register" method="post" novalidate>
-            <div asp-validation-summary="ModelOnly" class="mb-3"></div>
-
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" placeholder="Your full name" autocomplete="name" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" placeholder="At least 6 characters" autocomplete="new-password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-
-            <div class="mb-4">
-                <label asp-for="ConfirmPassword" class="form-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" placeholder="Re-enter your password" autocomplete="new-password" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-cb-primary w-100">Create Account</button>
-
-            <p class="text-center text-muted-cb mt-4 mb-0">
-                Already have an account? <a asp-controller="Account" asp-action="Login">Sign in</a>
-            </p>
-        </form>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            function bindToggle(inputId, btnId, iconId) {
+                const input = document.getElementById(inputId);
+                const btn = document.getElementById(btnId);
+                const icon = document.getElementById(iconId);
+                if (btn && input && icon) {
+                    btn.addEventListener('click', () => {
+                        const hidden = input.type === 'password';
+                        input.type = hidden ? 'text' : 'password';
+                        icon.textContent = hidden ? 'visibility_off' : 'visibility';
+                    });
+                }
+            }
+            bindToggle('password-input', 'toggle-password', 'toggle-icon');
+            bindToggle('confirm-password-input', 'toggle-confirm-password', 'toggle-confirm-icon');
+        })();
+    </script>
 }

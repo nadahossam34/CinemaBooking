@@ -1,6 +1,10 @@
-﻿using BuisnessLogicLayer.Services;
+using System.Security.Claims;
+using BuisnessLogicLayer.Services;
 using BuisnessLogicLayer.ViewModels;
+using CinemaBooking.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace PresentationLayer.Controllers
 {
@@ -8,13 +12,44 @@ namespace PresentationLayer.Controllers
     {
         private readonly BookingService _bookingService;
         private readonly QRCodeService _qrCodeService;
+        private readonly AppDbContext _context;
 
         public BookingController(
             BookingService bookingService,
-            QRCodeService qrCodeService)
+            QRCodeService qrCodeService,
+            AppDbContext context)
         {
             _bookingService = bookingService;
             _qrCodeService = qrCodeService;
+            _context = context;
+        }
+
+        // GET: /Booking/MyBookings
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MyBookings()
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out var userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var bookings = await _context.Bookings
+                .AsNoTracking()
+                .Where(b => b.UserId == userId)
+                .Include(b => b.Showtime)
+                    .ThenInclude(s => s.Movie)
+                .Include(b => b.Showtime)
+                    .ThenInclude(s => s.Cinema)
+                .Include(b => b.BookingSeats)
+                    .ThenInclude(bs => bs.Seat)
+                .OrderByDescending(b => b.Showtime.Date)
+                    .ThenByDescending(b => b.Showtime.Time)
+                .ToListAsync();
+
+            return View(bookings);
         }
 
         [HttpGet]
