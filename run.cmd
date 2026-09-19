@@ -1,3 +1,3 @@
 @echo off
 echo Starting StarLight Cinemas...
-dotnet run --project CinemaBooking
+dotnet run --project CinemaBooking\PresentationLayer.csproj --launch-profile https

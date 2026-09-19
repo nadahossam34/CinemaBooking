@@ -12,50 +12,90 @@ namespace CinemaBooking.Data
             {
                 context.Database.EnsureCreated();
 
-                // Seed Cinemas if none exist
-                if (!context.Cinemas.Any())
+                // Seed Cinemas if none exist or update existing coordinates
+                var mallOfEgypt = context.Cinemas.FirstOrDefault(c => c.Name.Contains("Mall of Egypt") || c.City == "Giza");
+                var newCairo = context.Cinemas.FirstOrDefault(c => c.Name.Contains("New Cairo") || c.City == "New Cairo");
+                var sharm = context.Cinemas.FirstOrDefault(c => c.Name.Contains("Sharm") || c.Name.Contains("Alexandria") || c.City == "Sharm El Sheikh" || c.City == "Alexandria");
+
+                if (mallOfEgypt == null)
                 {
-                    var mallOfEgypt = new Cinema
+                    mallOfEgypt = new Cinema
                     {
                         Name = "StarLight Mall of Egypt",
                         City = "Giza",
                         Address = "Gate 4, Level 2, Mall of Egypt, Wahat Road, 6th of October City, Giza",
                         Latitude = 29.9723m,
-                        Longitude = 31.0189m
+                        Longitude = 31.0152m
                     };
+                    context.Cinemas.Add(mallOfEgypt);
+                }
+                else
+                {
+                    mallOfEgypt.Name = "StarLight Mall of Egypt";
+                    mallOfEgypt.City = "Giza";
+                    mallOfEgypt.Address = "Gate 4, Level 2, Mall of Egypt, Wahat Road, 6th of October City, Giza";
+                    mallOfEgypt.Latitude = 29.9723m;
+                    mallOfEgypt.Longitude = 31.0152m;
+                }
 
-                    var newCairo = new Cinema
+                if (newCairo == null)
+                {
+                    newCairo = new Cinema
                     {
                         Name = "StarLight New Cairo",
                         City = "New Cairo",
                         Address = "The Promenade, Cairo Festival City Mall, Ring Road, New Cairo",
-                        Latitude = 30.0298m,
-                        Longitude = 31.4087m
+                        Latitude = 30.0270m,
+                        Longitude = 31.4089m
                     };
+                    context.Cinemas.Add(newCairo);
+                }
+                else
+                {
+                    newCairo.Name = "StarLight New Cairo";
+                    newCairo.City = "New Cairo";
+                    newCairo.Address = "The Promenade, Cairo Festival City Mall, Ring Road, New Cairo";
+                    newCairo.Latitude = 30.0270m;
+                    newCairo.Longitude = 31.4089m;
+                }
 
-                    var alexandria = new Cinema
+                if (sharm == null)
+                {
+                    sharm = new Cinema
                     {
-                        Name = "StarLight Alexandria",
-                        City = "Alexandria",
-                        Address = "San Stefano Grand Plaza, 3rd Floor, El-Geish Road, Alexandria",
-                        Latitude = 31.2443m,
-                        Longitude = 29.9686m
+                        Name = "StarLight Sharm El Sheikh",
+                        City = "Sharm El Sheikh",
+                        Address = "Naama Bay, Sharm El Sheikh",
+                        Latitude = 27.9158m,
+                        Longitude = 34.3299m
                     };
+                    context.Cinemas.Add(sharm);
+                }
+                else
+                {
+                    sharm.Name = "StarLight Sharm El Sheikh";
+                    sharm.City = "Sharm El Sheikh";
+                    sharm.Address = "Naama Bay, Sharm El Sheikh";
+                    sharm.Latitude = 27.9158m;
+                    sharm.Longitude = 34.3299m;
+                }
 
-                    context.Cinemas.AddRange(mallOfEgypt, newCairo, alexandria);
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    // Seed Halls for the cinemas
+                // Seed Halls for the cinemas if none exist
+                if (!context.Halls.Any())
+                {
                     var halls = new List<Hall>
                     {
                         new Hall { Name = "IMAX Laser Auditorium 1", CinemaId = mallOfEgypt.Id, SeatCount = 280 },
                         new Hall { Name = "Dolby Atmos Hall 2", CinemaId = mallOfEgypt.Id, SeatCount = 200 },
                         new Hall { Name = "VIP Luxe Lounge 1", CinemaId = newCairo.Id, SeatCount = 120 },
                         new Hall { Name = "Dual 4K Laser Hall 2", CinemaId = newCairo.Id, SeatCount = 220 },
-                        new Hall { Name = "Sea View Premiere Hall", CinemaId = alexandria.Id, SeatCount = 160 }
+                        new Hall { Name = "Sea View Premiere Hall", CinemaId = sharm.Id, SeatCount = 160 }
                     };
                     context.Halls.AddRange(halls);
                     context.SaveChanges();
+                }
 
                     // Seed sample movies
                     if (!context.Movies.Any())
@@ -104,17 +144,17 @@ namespace CinemaBooking.Data
 
                         // Seed showtimes linking movies and cinemas
                         var today = DateOnly.FromDateTime(DateTime.Today);
+                        var halls = context.Halls.ToList();
                         var showtimes = new List<Showtime>
                         {
                             new Showtime { MovieId = dune.Id, CinemaId = mallOfEgypt.Id, HallId = halls[0].Id, Date = today, Time = new TimeOnly(14, 0), BasePrice = 180m },
                             new Showtime { MovieId = dune.Id, CinemaId = mallOfEgypt.Id, HallId = halls[0].Id, Date = today, Time = new TimeOnly(18, 30), BasePrice = 220m },
                             new Showtime { MovieId = interstellar.Id, CinemaId = newCairo.Id, HallId = halls[2].Id, Date = today, Time = new TimeOnly(16, 15), BasePrice = 200m },
-                            new Showtime { MovieId = gladiator.Id, CinemaId = alexandria.Id, HallId = halls[4].Id, Date = today, Time = new TimeOnly(19, 0), BasePrice = 190m }
+                            new Showtime { MovieId = gladiator.Id, CinemaId = sharm.Id, HallId = halls[4].Id, Date = today, Time = new TimeOnly(19, 0), BasePrice = 190m }
                         };
                         context.Showtimes.AddRange(showtimes);
                         context.SaveChanges();
                     }
-                }
             }
             catch (Exception ex)
             {

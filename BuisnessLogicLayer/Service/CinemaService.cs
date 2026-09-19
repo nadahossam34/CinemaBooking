@@ -143,7 +143,7 @@ namespace BuisnessLogicLayer.Service
                     City = "Giza",
                     Address = "Gate 4, Level 2, Mall of Egypt, Wahat Road, 6th of October City, Giza",
                     Latitude = 29.9723m,
-                    Longitude = 31.0189m
+                    Longitude = 31.0152m
                 },
                 new CinemaViewModel
                 {
@@ -151,17 +151,17 @@ namespace BuisnessLogicLayer.Service
                     Name = "StarLight New Cairo",
                     City = "New Cairo",
                     Address = "The Promenade, Cairo Festival City Mall, Ring Road, New Cairo",
-                    Latitude = 30.0298m,
-                    Longitude = 31.4087m
+                    Latitude = 30.0270m,
+                    Longitude = 31.4089m
                 },
                 new CinemaViewModel
                 {
                     Id = 3,
-                    Name = "StarLight Alexandria",
-                    City = "Alexandria",
-                    Address = "San Stefano Grand Plaza, 3rd Floor, El-Geish Road, Alexandria",
-                    Latitude = 31.2443m,
-                    Longitude = 29.9686m
+                    Name = "StarLight Sharm El Sheikh",
+                    City = "Sharm El Sheikh",
+                    Address = "Naama Bay, Sharm El Sheikh",
+                    Latitude = 27.9158m,
+                    Longitude = 34.3299m
                 }
             };
         }
