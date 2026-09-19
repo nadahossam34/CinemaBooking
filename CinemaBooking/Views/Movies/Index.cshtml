@@ -1,0 +1,347 @@
+@model IEnumerable<DataAccessLayer.ViewModel.MovieViewModel>
+@{
+    ViewData["Title"] = "Explore Movies";
+    var movies = Model?.ToList() ?? new List<DataAccessLayer.ViewModel.MovieViewModel>();
+    var initialSearch = ViewData["InitialSearch"]?.ToString() ?? "";
+    var initialGenre  = ViewData["InitialGenre"]?.ToString()  ?? "";
+    int totalCount    = movies.Count;
+}
+
+<div class="relative w-full min-h-screen overflow-x-hidden">
+
+    @* Ambient background glows *@
+    <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div class="absolute -top-40 left-1/4 w-[600px] h-[400px] rounded-full bg-primary-container/10 blur-[140px]"></div>
+        <div class="absolute top-1/3 right-0 w-[400px] h-[300px] rounded-full bg-tertiary/5 blur-[120px]"></div>
+    </div>
+
+    <div class="relative z-10 w-full px-gutter-mobile md:px-margin py-space-xl">
+
+        @* --- Page Header --- *@
+        <div class="flex flex-col gap-space-sm mb-space-xl">
+            <div class="flex items-center gap-space-xs text-primary-container font-label-sm uppercase tracking-wider">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary-container animate-pulse shadow-[0_0_8px_rgba(229,9,20,0.8)]"></span>
+                <span>Auditorium Schedule</span>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-space-sm">
+                <div class="flex flex-col gap-1">
+                    <h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Explore Movies</h1>
+                    <div class="flex items-center gap-space-xs">
+                        <span id="movie-count-label" class="font-body-sm text-secondary">Showing @totalCount Titles &bull; IMAX 3D &amp; Dolby Cinema</span>
+                        <span class="text-tertiary material-symbols-outlined text-[16px]" title="Verified Program">verified</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* --- Filter + Sort Controls --- *@
+        <div class="flex flex-col md:flex-row md:items-center gap-space-md mb-space-lg">
+
+            @* Genre filter pills (horizontal scroll) *@
+            <div id="genre-filter-strip" class="flex items-center gap-space-xs overflow-x-auto pb-1 flex-1 min-w-0" role="tablist" aria-label="Filter by genre">
+                @{
+                    var genres = new[] { "All Movies", "Sci-Fi", "Action", "Thriller", "Drama", "Comedy", "Horror", "Animation" };
+                }
+                @foreach (var g in genres)
+                {
+                    var isAll = g == "All Movies";
+                    <button type="button"
+                            role="tab"
+                            class="genre-pill flex-shrink-0 font-label-md text-label-md uppercase tracking-wider px-space-md py-space-xs rounded-full border transition-all duration-200 whitespace-nowrap @(isAll ? "bg-primary-container text-on-primary-container border-primary-container shadow-[0_0_10px_rgba(229,9,20,0.35)]" : "bg-surface-container text-secondary border-outline-variant/30 hover:border-primary-container/60 hover:text-on-surface")"
+                            data-genre="@(isAll ? "all" : g)"
+                            aria-selected="@(isAll ? "true" : "false")">
+                        @g
+                    </button>
+                }
+            </div>
+
+            @* Right controls: Sort + Simulate Empty *@
+            <div class="flex items-center gap-space-sm shrink-0">
+                <div class="relative">
+                    <select id="sort-select"
+                            class="appearance-none bg-surface-container border border-outline-variant/30 text-on-surface font-label-md text-label-md rounded-lg px-space-md pr-8 py-space-xs cursor-pointer focus:outline-none focus:border-primary-container/60 transition-colors">
+                        <option value="rating">Top Rated</option>
+                        <option value="date">Release Date</option>
+                        <option value="title">Film Title</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-[16px]">expand_more</span>
+                </div>
+                <button id="simulate-empty-btn" type="button"
+                        class="font-label-md text-label-md px-space-md py-space-xs rounded-lg border border-outline-variant/30 text-secondary hover:border-primary-container/60 hover:text-on-surface bg-surface-container transition-all duration-200">
+                    Simulate Empty
+                </button>
+            </div>
+        </div>
+
+        @* Search bar *@
+        <div class="mb-space-lg">
+            <div class="relative max-w-lg">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[20px]">search</span>
+                <input id="movie-search-input" type="text" placeholder="Search movies, genres..."
+                       value="@initialSearch"
+                       class="w-full bg-surface-container border border-outline-variant/30 text-on-surface font-body-md rounded-xl pl-10 pr-4 py-space-sm focus:outline-none focus:border-primary-container/60 focus:shadow-[0_0_0_2px_rgba(229,9,20,0.15)] transition-all placeholder:text-secondary"
+                       aria-label="Search movies" />
+            </div>
+        </div>
+
+        @* --- Movie Grid --- *@
+        <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-lg" aria-live="polite">
+            @foreach (var movie in movies)
+            {
+                int durHr  = movie.DurationMinutes / 60;
+                int durMin = movie.DurationMinutes % 60;
+                string durFmt = durHr > 0 ? $"{durHr}h {durMin:D2}m" : $"{durMin}m";
+
+                <div class="movie-card group flex flex-col bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/10 shadow-lg hover:shadow-[0_8px_32px_rgba(0,0,0,0.6)] hover:-translate-y-1.5 transition-all duration-300 cinema-card-transition"
+                     data-title="@movie.Title.ToLower()"
+                     data-genre="@(movie.Genre?.ToLower() ?? "")"
+                     data-score="@movie.Score"
+                     data-year="@movie.Year">
+
+                    @* Poster *@
+                    <div class="relative w-full aspect-[2/3] overflow-hidden bg-surface-container-high">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                             src="@movie.PosterUrl"
+                             alt="@movie.Title poster"
+                             loading="lazy" />
+                        @* Gradient overlay *@
+                        <div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/30 to-transparent"></div>
+
+                        @* Format badge (top-left) *@
+                        @if (!string.IsNullOrEmpty(movie.Format))
+                        {
+                            <div class="absolute top-2 left-2">
+                                <span class="font-label-sm text-label-sm uppercase bg-surface-container-lowest/85 backdrop-blur-sm text-on-surface px-2 py-0.5 rounded font-bold tracking-wider">
+                                    @movie.Format
+                                </span>
+                            </div>
+                        }
+
+                        @* Age rating badge (top-right) *@
+                        @if (!string.IsNullOrEmpty(movie.AgeRating))
+                        {
+                            <div class="absolute top-2 right-2">
+                                <span class="font-label-sm text-label-sm uppercase bg-primary-container text-on-primary-container px-2 py-0.5 rounded font-bold shadow-md">
+                                    @movie.AgeRating
+                                </span>
+                            </div>
+                        }
+
+                        @* Score badge (bottom-left) *@
+                        <div class="absolute bottom-2 left-2 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-tertiary text-[14px]" style="font-variation-settings:'FILL' 1">star</span>
+                            <span class="font-label-md text-label-md text-on-surface font-bold">@movie.Score.ToString("F1")</span>
+                        </div>
+                    </div>
+
+                    @* Card Body *@
+                    <div class="p-space-md flex-1 flex flex-col gap-space-sm">
+                        <div class="flex flex-col gap-1">
+                            <h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1 leading-tight">
+                                @movie.Title
+                            </h2>
+                            <div class="flex items-center gap-space-xs text-secondary font-body-sm text-body-sm">
+                                <span>@durFmt</span>
+                                <span>&bull;</span>
+                                <span>@movie.Year</span>
+                            </div>
+                        </div>
+
+                        @* Description *@
+                        @if (!string.IsNullOrEmpty(movie.Description))
+                        {
+                            <p class="font-body-sm text-body-sm text-secondary line-clamp-2 leading-snug">@movie.Description</p>
+                        }
+
+                        @* Genre tags *@
+                        <div class="flex flex-wrap gap-1">
+                            @foreach (var tag in (movie.Genre ?? "").Split('/').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).Take(3))
+                            {
+                                <span class="font-label-sm text-label-sm bg-surface-container text-secondary px-space-sm py-0.5 rounded uppercase tracking-wide">@tag</span>
+                            }
+                        </div>
+
+                        @* Book Now CTA *@
+                        <div class="mt-auto pt-space-xs">
+                            <a asp-controller="Movies" asp-action="Details" asp-route-id="@movie.Id"
+                               class="w-full block text-center bg-primary-container hover:bg-inverse-primary text-on-primary-container font-label-md text-label-md py-2.5 rounded-lg transition-all duration-200 shadow-[0_0_12px_rgba(229,9,20,0.25)] hover:shadow-[0_0_20px_rgba(229,9,20,0.5)] uppercase tracking-wider">
+                                Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* --- Empty State --- *@
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-24 gap-space-lg text-center" aria-live="polite">
+            <div class="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center mb-space-sm shadow-inner">
+                <span class="material-symbols-outlined text-secondary text-[42px]">movie_filter</span>
+            </div>
+            <div class="flex flex-col gap-space-xs">
+                <h2 class="font-headline-md text-headline-md text-on-surface">No Titles Found</h2>
+                <p class="font-body-md text-secondary max-w-sm">No movies match your current filters. Try adjusting your search or clearing genre filters.</p>
+            </div>
+            <button id="reset-filters-btn" type="button"
+                    class="mt-space-sm px-space-xl py-space-sm bg-primary-container hover:bg-inverse-primary text-on-primary-container font-label-md text-label-md rounded-lg transition-all shadow-[0_0_14px_rgba(229,9,20,0.3)] hover:shadow-[0_0_22px_rgba(229,9,20,0.5)] uppercase tracking-wider">
+                Reset Filters
+            </button>
+        </div>
+
+        @* --- StarLight Premiere Access Banner --- *@
+        <div class="relative mt-space-xl rounded-2xl overflow-hidden border border-outline-variant/20 shadow-2xl bg-surface-container-low">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary-container/20 via-transparent to-surface-container-low pointer-events-none"></div>
+            <div class="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-primary-container/10 blur-[80px] pointer-events-none"></div>
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-space-lg px-space-xl py-space-xl">
+                <div class="flex flex-col gap-space-sm max-w-xl">
+                    <div class="flex items-center gap-space-xs">
+                        <span class="material-symbols-outlined text-tertiary text-[20px]" style="font-variation-settings:'FILL' 1">workspace_premium</span>
+                        <span class="font-label-md text-label-md uppercase tracking-wider text-tertiary">StarLight Premiere Access</span>
+                    </div>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Experience Cinema at Its Finest</h2>
+                    <p class="font-body-md text-secondary">
+                        Enjoy all titles above in our flagship IMAX Laser, Dolby Atmos, and 70mm Dome auditoriums &mdash; with reserved recliner seating, concierge service, and zero ads.
+                    </p>
+                </div>
+                <a asp-controller="Cinemas" asp-action="Index"
+                   class="shrink-0 flex items-center gap-space-sm px-space-xl py-space-md bg-primary-container hover:bg-inverse-primary text-on-primary-container font-label-lg text-label-lg rounded-xl transition-all shadow-[0_0_20px_rgba(229,9,20,0.4)] hover:shadow-[0_0_32px_rgba(229,9,20,0.6)] uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-[20px]">theaters</span>
+                    Find Flagship Theaters
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    // Data from server
+    var initialSearch = "@Html.Raw(initialSearch.Replace("\"", "\\\""))".toLowerCase();
+    var initialGenre  = "@Html.Raw(initialGenre.Replace("\"", "\\\""))".toLowerCase();
+
+    // DOM references
+    var grid       = document.getElementById('movies-grid');
+    var emptyState = document.getElementById('empty-state');
+    var searchInput= document.getElementById('movie-search-input');
+    var sortSelect = document.getElementById('sort-select');
+    var simBtn     = document.getElementById('simulate-empty-btn');
+    var resetBtn   = document.getElementById('reset-filters-btn');
+    var countLabel = document.getElementById('movie-count-label');
+    var genrePills = document.querySelectorAll('.genre-pill');
+    var allCards   = Array.from(document.querySelectorAll('.movie-card'));
+
+    // State
+    var activeGenre     = 'all';
+    var simulatingEmpty = false;
+
+    // Apply server-side initial genre if provided
+    if (initialGenre) {
+        genrePills.forEach(function(p) {
+            if (p.dataset.genre && p.dataset.genre.toLowerCase() === initialGenre) {
+                activeGenre = p.dataset.genre;
+            }
+        });
+    }
+
+    // Filter & sort
+    function applyFilters() {
+        var query   = searchInput.value.trim().toLowerCase();
+        var sortVal = sortSelect.value;
+
+        var visible = allCards.filter(function(card) {
+            if (simulatingEmpty) return false;
+            var title = card.dataset.title || '';
+            var genre = card.dataset.genre || '';
+            var matchQ = !query || title.indexOf(query) >= 0 || genre.indexOf(query) >= 0;
+            var matchG = activeGenre === 'all' || genre.indexOf(activeGenre.toLowerCase()) >= 0;
+            return matchQ && matchG;
+        });
+
+        visible.sort(function(a, b) {
+            if (sortVal === 'rating') {
+                return parseFloat(b.dataset.score) - parseFloat(a.dataset.score);
+            } else if (sortVal === 'date') {
+                return parseInt(b.dataset.year) - parseInt(a.dataset.year);
+            } else {
+                return (a.dataset.title || '').localeCompare(b.dataset.title || '');
+            }
+        });
+
+        allCards.forEach(function(c) { c.style.display = 'none'; });
+        visible.forEach(function(c) { c.style.display = ''; grid.appendChild(c); });
+
+        var hasResults = visible.length > 0;
+        grid.style.display   = hasResults ? '' : 'none';
+        emptyState.style.display = hasResults ? 'none' : 'flex';
+
+        if (countLabel) {
+            if (simulatingEmpty) {
+                countLabel.textContent = 'Showing 0 Titles';
+            } else {
+                countLabel.textContent = 'Showing ' + visible.length + ' Title' + (visible.length !== 1 ? 's' : '') + ' \u2022 IMAX 3D & Dolby Cinema';
+            }
+        }
+    }
+
+    // Genre pill toggle
+    function setActivePill(pill) {
+        genrePills.forEach(function(p) {
+            var isActive = p === pill;
+            p.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            if (isActive) {
+                p.classList.add('bg-primary-container', 'text-on-primary-container', 'border-primary-container', 'shadow-[0_0_10px_rgba(229,9,20,0.35)]');
+                p.classList.remove('bg-surface-container', 'text-secondary', 'border-outline-variant/30');
+            } else {
+                p.classList.remove('bg-primary-container', 'text-on-primary-container', 'border-primary-container', 'shadow-[0_0_10px_rgba(229,9,20,0.35)]');
+                p.classList.add('bg-surface-container', 'text-secondary', 'border-outline-variant/30');
+            }
+        });
+    }
+
+    genrePills.forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            activeGenre = pill.dataset.genre || 'all';
+            setActivePill(pill);
+            applyFilters();
+        });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+
+    simBtn.addEventListener('click', function() {
+        simulatingEmpty = !simulatingEmpty;
+        simBtn.textContent = simulatingEmpty ? 'Show Movies' : 'Simulate Empty';
+        simBtn.classList.toggle('border-primary-container', simulatingEmpty);
+        simBtn.classList.toggle('text-primary-container', simulatingEmpty);
+        applyFilters();
+    });
+
+    function resetFilters() {
+        simulatingEmpty = false;
+        simBtn.textContent = 'Simulate Empty';
+        simBtn.classList.remove('border-primary-container', 'text-primary-container');
+        searchInput.value = '';
+        sortSelect.value = 'rating';
+        activeGenre = 'all';
+        var allPill = document.querySelector('.genre-pill[data-genre="all"]');
+        if (allPill) setActivePill(allPill);
+        applyFilters();
+    }
+    resetBtn.addEventListener('click', resetFilters);
+
+    // Apply initial state from URL params
+    if (initialSearch) searchInput.value = initialSearch;
+    if (initialGenre && activeGenre !== 'all') {
+        var matchPill = Array.from(genrePills).find(function(p) {
+            return p.dataset.genre && p.dataset.genre.toLowerCase() === initialGenre;
+        });
+        if (matchPill) setActivePill(matchPill);
+    }
+    applyFilters();
+
+})();
+</script>
+}

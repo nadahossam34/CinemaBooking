@@ -1,0 +1,3 @@
+@echo off
+echo Starting StarLight Cinemas...
+dotnet run --project CinemaBooking

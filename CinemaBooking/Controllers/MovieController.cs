@@ -1,4 +1,4 @@
-﻿using BuisnessLogicLayer.Service;
+using BuisnessLogicLayer.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PresentationLayer.Controllers
@@ -12,10 +12,11 @@ namespace PresentationLayer.Controllers
             _movieService = movieService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, string? genre)
         {
             var movies = await _movieService.GetAllMoviesAsync();
-
+            ViewData["InitialSearch"] = search ?? "";
+            ViewData["InitialGenre"] = genre ?? "";
             return View(movies);
         }
 

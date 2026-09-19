@@ -1,0 +1,499 @@
+@model IEnumerable<DataAccessLayer.ViewModel.CinemaViewModel>
+@{
+    ViewData["Title"] = "Our Cinemas";
+    var cinemaList = Model?.ToList() ?? new List<DataAccessLayer.ViewModel.CinemaViewModel>();
+}
+
+<div class="flex flex-col w-full">
+    <!-- Top Hero Visual Strip / Scrim Header -->
+    <div class="relative w-full bg-surface-container-lowest overflow-hidden">
+        <!-- Subtle Red Glow Orb Background Accent -->
+        <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[280px] bg-primary-container/10 blur-[130px] rounded-full pointer-events-none"></div>
+        <div class="w-full px-gutter-mobile md:px-margin pt-space-lg pb-space-md flex flex-col gap-space-md">
+            <!-- Breadcrumb & Tag -->
+            <div class="flex items-center gap-space-xs text-primary-container font-label-sm uppercase tracking-wider">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_rgba(229,9,20,0.8)]"></span>
+                <span>Auditorium Locations &amp; Flagship Venues</span>
+            </div>
+            <!-- Main Headline & Quick Stats -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
+                <div class="flex flex-col gap-space-xs max-w-2xl">
+                    <h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Our Cinemas</h1>
+                    <p class="font-body-lg text-body-lg text-secondary">
+                        Find a StarLight Cinema near you and explore available showtimes across premier screening environments, cutting-edge IMAX Laser, and luxury lounge auditoriums.
+                    </p>
+                </div>
+                <!-- Status Indicator Pill -->
+                <div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-sm rounded-lg shadow-sm self-start lg:self-auto">
+                    <span class="material-symbols-outlined text-primary-container text-[18px]">theaters</span>
+                    <span class="font-label-md text-label-md text-on-surface">Showing <span class="text-primary-container font-bold" id="cinema-count">@cinemaList.Count</span> Flagship Cinemas</span>
+                    <span class="text-secondary-container">•</span>
+                    <span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">28 Premium Screens</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Controls Bar -->
+    <section class="w-full px-gutter-mobile md:px-margin py-space-sm">
+        <div class="bg-surface-container-low rounded-xl p-space-md shadow-md flex flex-col gap-space-md">
+            <!-- Input Row -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm">
+                <!-- Text Search -->
+                <div class="md:col-span-6 lg:col-span-5 relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-space-md text-secondary pointer-events-none text-[20px]">search</span>
+                    <input class="w-full bg-surface-container text-on-surface placeholder:text-secondary/60 rounded-lg pl-10 pr-space-md py-3 font-body-md text-body-md focus:outline-none focus:bg-surface-bright transition-colors shadow-inner"
+                           id="cinema-search"
+                           placeholder="Search cinemas or locations…"
+                           type="text" />
+                </div>
+                <!-- City Dropdown -->
+                <div class="md:col-span-4 lg:col-span-4 relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-space-md text-secondary pointer-events-none text-[20px]">location_on</span>
+                    <select class="w-full bg-surface-container text-on-surface rounded-lg pl-10 pr-space-lg py-3 font-body-md text-body-md focus:outline-none focus:bg-surface-bright transition-colors appearance-none cursor-pointer"
+                            id="city-filter">
+                        <option class="bg-surface-container-high text-on-surface" value="all">All Cities</option>
+                        <option class="bg-surface-container-high text-on-surface" value="Cairo">Cairo</option>
+                        <option class="bg-surface-container-high text-on-surface" value="Giza">Giza (Mall of Egypt)</option>
+                        <option class="bg-surface-container-high text-on-surface" value="New Cairo">New Cairo (Festival City)</option>
+                        <option class="bg-surface-container-high text-on-surface" value="Alexandria">Alexandria (Corniche Bay)</option>
+                        <option class="bg-surface-container-high text-on-surface" value="6th of October">6th of October City</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-space-md text-secondary pointer-events-none text-[18px]">expand_more</span>
+                </div>
+                <!-- Simulation & Action Buttons -->
+                <div class="md:col-span-2 lg:col-span-3 flex items-center gap-space-xs justify-end">
+                    <button class="w-full md:w-auto px-space-md py-3 bg-surface-container text-secondary hover:text-on-surface hover:bg-surface-bright rounded-lg font-label-md text-label-md transition-colors flex items-center justify-center gap-space-xs"
+                            id="reset-filter-btn"
+                            type="button">
+                        <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+                        <span>Clear Filters</span>
+                    </button>
+                    <button class="hidden lg:flex items-center gap-space-xs px-space-sm py-3 bg-surface-container-highest text-secondary hover:text-on-surface rounded-lg font-label-sm text-label-sm uppercase tracking-wider transition-colors"
+                            id="simulate-empty-btn"
+                            title="Toggle empty state view"
+                            type="button">
+                        <span class="material-symbols-outlined text-[16px]">visibility</span>
+                        <span>Preview Empty</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Experience Filter Pills -->
+            <div class="flex flex-wrap items-center gap-space-xs pt-space-xs">
+                <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary mr-space-xs">Experience:</span>
+                <button class="format-pill px-space-md py-1.5 rounded-full font-label-md text-label-md transition-all bg-primary-container text-on-primary-container shadow-[0_0_12px_rgba(229,9,20,0.4)]"
+                        data-format="all"
+                        type="button">
+                    All Formats
+                </button>
+                <button class="format-pill px-space-md py-1.5 rounded-full font-label-md text-label-md transition-all bg-surface-container text-secondary hover:text-on-surface hover:bg-surface-bright"
+                        data-format="IMAX Laser"
+                        type="button">
+                    IMAX Laser
+                </button>
+                <button class="format-pill px-space-md py-1.5 rounded-full font-label-md text-label-md transition-all bg-surface-container text-secondary hover:text-on-surface hover:bg-surface-bright"
+                        data-format="Dolby Atmos"
+                        type="button">
+                    Dolby Atmos
+                </button>
+                <button class="format-pill px-space-md py-1.5 rounded-full font-label-md text-label-md transition-all bg-surface-container text-secondary hover:text-on-surface hover:bg-surface-bright"
+                        data-format="VIP Dine-In Lounge"
+                        type="button">
+                    VIP Dine-In Lounge
+                </button>
+                <button class="format-pill px-space-md py-1.5 rounded-full font-label-md text-label-md transition-all bg-surface-container text-secondary hover:text-on-surface hover:bg-surface-bright"
+                        data-format="Zero-Gravity Seats"
+                        type="button">
+                    Zero-Gravity Seats
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cinema Listings Grid Container -->
+    <section class="w-full px-gutter-mobile md:px-margin py-space-md">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg" id="cinemas-grid">
+            @foreach (var cinema in cinemaList)
+            {
+                var isMallOfEgypt = cinema.Name.Contains("Mall of Egypt", StringComparison.OrdinalIgnoreCase) || cinema.City.Contains("Giza", StringComparison.OrdinalIgnoreCase);
+                var isAlexandria = cinema.Name.Contains("Alexandria", StringComparison.OrdinalIgnoreCase) || cinema.City.Contains("Alexandria", StringComparison.OrdinalIgnoreCase);
+                var isNewCairo = !isMallOfEgypt && !isAlexandria;
+
+                var cardCity = isMallOfEgypt ? "Giza 6th of October" : (isAlexandria ? "Alexandria" : "New Cairo Cairo");
+                var cardFormats = isMallOfEgypt 
+                    ? "IMAX Laser, Dolby Atmos, VIP Dine-In Lounge, Recliner Seats" 
+                    : (isAlexandria ? "VIP Premiere, Dolby Atmos, VIP Dine-In Lounge, Zero-Gravity Seats" : "4K Dual Laser, Dolby Atmos, VIP Dine-In Lounge, Recliner Seats");
+
+                var imageUrl = isMallOfEgypt
+                    ? "https://lh3.googleusercontent.com/aida-public/AB6AXuBQEUioXS9YiGUteZkknbx8RVJeeuWQDKxrhyHSusFsnHvB_duO9gFxdP7Mdods-gk8aVsAbW3ivUJt76tKcVfx7bomR7vQZMi7tguYehRKu9vHM5pgAaE7HaNoZ3pw59O678GSLlvBHoK3uxruJbHIzXqh8RS-4oE3ntPRn9y7B2-BFcCNM3WSbAbVJi4wTRTZvwpSUSCgiLphG9dFfCC3jvPLtZFImbl7RZw1QNaYz2VYt_NGUwoA5g"
+                    : (isAlexandria
+                        ? "https://lh3.googleusercontent.com/aida-public/AB6AXuAl2HYgjo1dp3k0OMocQyKLK8zVOkAqCbKPpcEOn7HlXxQjAr0Cd623-fyEFrlQebh8AnHr5zFSFBb-Es_hPynE_MtQEG3MdUS0VEcKQh7-Rzmeb7FA-PQotjbrdlNWsBwfdmwhti49xloWpJO7u5PNJxLuUDPaSxoti6vQDar_RUd0wuQtrzK4tsO2LoGNfX-bm2sfZKYVqWvsKTCV4ZXzAMdr3BCSswpgiBgoY0lM-DOvixECO0_QCw"
+                        : "https://lh3.googleusercontent.com/aida-public/AB6AXuAxt0LzD08cdMfBovFXegMyFuwMFcd8x_sEPGCYXJ7Vq819imBIlU-0IMezu_KIwDjq-WmWyFtR1xFRw4wFR5jL6F5ZbNq59-3y1pZgi2cqJj-L_yQMn0osjKygWVL848wwirWrM41YUZLlIdo5WoPRL0GgocOIeHhuoqtu9JfBewUoik0ZBAvNfUCfAQgnUA0hSh9hOUYqZRm4xshN0BEgS0qfpaagxrtrM8bl0pW7aGzi8EQDghSKZw");
+
+                var tagLabel = isMallOfEgypt ? "Flagship" : (isAlexandria ? "VIP Club" : "Auditorium Luxe");
+                var tagClass = isMallOfEgypt 
+                    ? "bg-primary-container text-on-primary-container shadow-[0_0_10px_rgba(229,9,20,0.5)]" 
+                    : (isAlexandria ? "bg-surface-container-highest text-tertiary-fixed-dim" : "bg-surface-container-highest text-on-surface");
+
+                var badgeLocation = isMallOfEgypt 
+                    ? "Giza • Mall of Egypt, Wahat Rd" 
+                    : (isAlexandria ? "Alexandria • Corniche Bay" : "New Cairo • Festival City");
+
+                var phone = isMallOfEgypt ? "+20 (2) 3855-4000" : (isAlexandria ? "+20 (3) 5812-700" : "+20 (2) 2618-9100");
+                var hours = isMallOfEgypt ? "Daily: 10:00 AM – 02:00 AM" : (isAlexandria ? "Daily: 11:00 AM – 01:00 AM" : "Daily: 10:30 AM – 01:30 AM");
+
+                <article class="bg-surface-container-low rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+                         data-cinema-card=""
+                         data-city="@cardCity"
+                         data-formats="@cardFormats"
+                         data-name="@cinema.Name">
+                    <!-- Card Header Image Container with Scrim -->
+                    <div class="relative w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                             src="@imageUrl"
+                             alt="@cinema.Name Flagship Auditorium" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/30 to-transparent"></div>
+                        <!-- Top Floating City/Status Tag -->
+                        <div class="absolute top-space-sm left-space-sm flex items-center gap-space-xs">
+                            <span class="bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-label-sm text-label-sm uppercase px-space-sm py-1 rounded tracking-wide shadow-sm flex items-center gap-1">
+                                <span class="material-symbols-outlined text-primary-container text-[14px]">pin_drop</span>
+                                @badgeLocation
+                            </span>
+                        </div>
+                        <!-- Feature Tag Right -->
+                        <div class="absolute top-space-sm right-space-sm">
+                            <span class="@tagClass font-label-sm text-label-sm uppercase font-bold px-space-sm py-1 rounded">
+                                @tagLabel
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-space-lg flex-1 flex flex-col justify-between gap-space-md bg-surface-container-low">
+                        <div class="flex flex-col gap-space-xs">
+                            <h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
+                                @cinema.Name
+                            </h2>
+                            <div class="flex items-start gap-space-xs text-secondary font-body-sm text-body-sm">
+                                <span class="material-symbols-outlined text-[18px] text-secondary mt-0.5 shrink-0">location_on</span>
+                                <span>@cinema.Address</span>
+                            </div>
+                            <div class="flex items-center flex-wrap gap-x-space-md gap-y-1 text-secondary font-body-sm text-body-sm mt-space-xs pt-space-xs">
+                                <div class="flex items-center gap-space-xs">
+                                    <span class="material-symbols-outlined text-[16px] text-primary-container">call</span>
+                                    <span>@phone</span>
+                                </div>
+                                <div class="flex items-center gap-space-xs">
+                                    <span class="material-symbols-outlined text-[16px] text-tertiary">schedule</span>
+                                    <span>@hours</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Amenities Grid Badges -->
+                        <div class="flex flex-col gap-space-xs pt-space-xs">
+                            <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary/70">Auditorium Amenities</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                @if (isMallOfEgypt)
+                                {
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-primary px-2.5 py-1 rounded font-label-sm text-label-sm uppercase tracking-wider font-semibold shadow-sm">
+                                        <span class="material-symbols-outlined text-[14px]">videocam</span>
+                                        IMAX Laser
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">surround_sound</span>
+                                        Dolby Atmos
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">airline_seat_recline_extra</span>
+                                        Recliner Seats
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">wine_bar</span>
+                                        VIP Lounge
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">fastfood</span>
+                                        Food &amp; Drinks
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">local_parking</span>
+                                        Parking
+                                    </span>
+                                }
+                                else if (isAlexandria)
+                                {
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-primary px-2.5 py-1 rounded font-label-sm text-label-sm uppercase tracking-wider font-semibold shadow-sm">
+                                        <span class="material-symbols-outlined text-[14px]">diamond</span>
+                                        VIP Premiere
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">surround_sound</span>
+                                        Dolby Atmos
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">meeting_room</span>
+                                        Private Lounges
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">wb_sunny</span>
+                                        Sea View Balcony
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">airline_seat_flat</span>
+                                        Zero-Gravity Seats
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">local_bar</span>
+                                        Concessions Bar
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-primary px-2.5 py-1 rounded font-label-sm text-label-sm uppercase tracking-wider font-semibold shadow-sm">
+                                        <span class="material-symbols-outlined text-[14px]">lens_blur</span>
+                                        4K Dual Laser
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">surround_sound</span>
+                                        Dolby Atmos
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">airline_seat_recline_extra</span>
+                                        Recliner Seats
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">restaurant_menu</span>
+                                        Gourmet Dine-In
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">directions_car</span>
+                                        Valet Parking
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 bg-surface-container text-secondary px-2 py-1 rounded font-label-sm text-label-sm">
+                                        <span class="material-symbols-outlined text-[14px]">accessible</span>
+                                        Wheelchair Accessible
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="grid grid-cols-2 gap-space-sm pt-space-xs mt-auto">
+                            <a class="w-full text-center bg-primary-container hover:bg-inverse-primary text-on-primary-container font-label-md text-label-md py-2.5 rounded-lg transition-all shadow-[0_0_12px_rgba(229,9,20,0.35)] hover:shadow-[0_0_18px_rgba(229,9,20,0.55)]"
+                               asp-controller="Cinemas" asp-action="Details" asp-route-id="@cinema.Id">
+                                View Showtimes
+                            </a>
+                            <button class="branch-select-btn w-full text-center bg-surface-container hover:bg-surface-bright text-on-surface font-label-md text-label-md py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                    data-branch-name="@cinema.Name"
+                                    onclick="handleSelectBranch(this, '@cinema.Name')"
+                                    type="button">
+                                <span class="material-symbols-outlined text-[16px]">bookmark_add</span>
+                                <span class="select-label">Select Branch</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+
+        <!-- Empty State Container (Hidden by default) -->
+        <div class="hidden flex-col items-center justify-center py-16 px-space-md text-center bg-surface-container-low rounded-xl shadow-inner mt-space-md"
+             id="no-results">
+            <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-secondary mb-space-md">
+                <span class="material-symbols-outlined text-4xl text-primary-container">search_off</span>
+            </div>
+            <h3 class="font-headline-md text-headline-md text-on-surface mb-space-xs">No cinemas found</h3>
+            <p class="font-body-md text-body-md text-secondary max-w-md mb-space-lg">
+                We couldn’t find any StarLight venues matching your search terms or location filter. Try clearing your search or switching cities.
+            </p>
+            <button class="px-space-lg py-3 bg-primary-container hover:bg-inverse-primary text-on-primary-container font-label-md text-label-md rounded-lg shadow-[0_0_16px_rgba(229,9,20,0.4)] transition-all flex items-center gap-space-xs"
+                    onclick="resetAllFilters()"
+                    type="button">
+                <span class="material-symbols-outlined text-[18px]">replay</span>
+                <span>Reset Filters &amp; Show All</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Interactive Map & Directions Section -->
+    <section class="w-full px-gutter-mobile md:px-margin py-space-lg">
+        <div class="bg-surface-container-low rounded-xl p-space-lg flex flex-col lg:flex-row gap-space-lg items-center justify-between shadow-md relative overflow-hidden">
+            <!-- Ambient Glow Behind Map -->
+            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-primary-container/10 blur-[100px] pointer-events-none rounded-full"></div>
+            <div class="flex flex-col gap-space-sm max-w-xl">
+                <div class="flex items-center gap-space-xs text-tertiary font-label-sm text-label-sm uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-[16px]">map</span>
+                    <span>Fast Nav &amp; Concierge</span>
+                </div>
+                <h3 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Need help finding your screen?</h3>
+                <p class="font-body-md text-body-md text-secondary">
+                    All StarLight flagship locations feature dedicated VIP valet parking, concierge ticket pickup, and direct escalator access straight from prime mall entry points.
+                </p>
+                <div class="flex flex-wrap items-center gap-space-md pt-space-xs text-on-surface font-body-sm text-body-sm">
+                    <div class="flex items-center gap-space-xs">
+                        <span class="material-symbols-outlined text-primary-container text-[18px]">check_circle</span>
+                        <span>Digital Ticket Fast-Pass</span>
+                    </div>
+                    <div class="flex items-center gap-space-xs">
+                        <span class="material-symbols-outlined text-primary-container text-[18px]">check_circle</span>
+                        <span>Reserved Parking Bay Booking</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Static Map Widget Anchor -->
+            <div class="w-full lg:w-[460px] h-56 rounded-lg overflow-hidden bg-surface-container relative shadow-inner">
+                <div class="w-full h-full bg-cover bg-center"
+                     style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuByGgsjwu1JBWsmqWUt2G4bQXiehVzTDLOQL8wtiXl6JKvmyVfM7C4c8xmMdRhsxEBPrKgAm-wHOo6w9C5Oa2EQHV0QNX4Pf3aED6ak0kjq5wC6xXd5EUXsriitpwHfYMJpExRTTKEq-ELdb-uLVsuBURce7S2QmeYEoKo-7LJkpQqw7QdeQ2E3zjV00cYAWllk-Vgnp0i_iTqWs4HZsS92NShXsWEf7X1777KkM9EIdDrsByLRVSX7Bg');"></div>
+                <!-- Overlaid Map Badge -->
+                <div class="absolute bottom-space-sm left-space-sm right-space-sm bg-surface-container-lowest/90 backdrop-blur-md px-space-md py-space-sm rounded-lg flex items-center justify-between">
+                    <div class="flex items-center gap-space-xs">
+                        <span class="material-symbols-outlined text-primary-container text-[18px]">navigation</span>
+                        <span class="font-label-sm text-label-sm text-on-surface font-semibold">Greater Cairo Metros</span>
+                    </div>
+                    <a class="font-label-sm text-label-sm text-primary hover:underline"
+                       href="https://maps.google.com/?q=Cairo+Festival+City+Mall"
+                       target="_blank" rel="noopener noreferrer">Open Live Map &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premiere Experience Callout Banner -->
+    <section class="w-full px-gutter-mobile md:px-margin pt-space-sm pb-space-xl">
+        <div class="relative w-full rounded-xl overflow-hidden bg-surface-container-low shadow-xl">
+            <!-- Background Ambient Glow & Contrast Gradients -->
+            <div class="absolute inset-0 bg-gradient-to-r from-primary-container/20 via-surface-container-high/40 to-surface-container-lowest pointer-events-none"></div>
+            <div class="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 bg-primary-container/25 blur-[90px] pointer-events-none rounded-full"></div>
+            <div class="relative z-10 px-space-lg md:px-space-xl py-space-xl flex flex-col md:flex-row items-center justify-between gap-space-lg">
+                <div class="flex flex-col gap-space-xs text-center md:text-left max-w-2xl">
+                    <div class="flex items-center justify-center md:justify-start gap-space-xs">
+                        <span class="material-symbols-outlined text-primary-container text-[20px]">verified</span>
+                        <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-container font-bold">Uncompromising Presentation</span>
+                    </div>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+                        Next-Gen Dolby Atmos &amp; Dual 4K Laser
+                    </h2>
+                    <p class="font-body-md text-body-md text-secondary">
+                        Step into crystal-clear acoustics and breathtaking contrast. Explore our schedule to lock in prime auditorium seats before upcoming blockbusters sell out.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-space-sm w-full md:w-auto shrink-0">
+                    <a class="w-full sm:w-auto px-space-xl py-3.5 bg-primary-container hover:bg-inverse-primary text-on-primary-container font-label-lg text-label-lg rounded-lg shadow-[0_0_20px_rgba(229,9,20,0.5)] transition-all text-center"
+                       asp-controller="Movies" asp-action="Index">
+                        Explore Movies &amp; Book
+                    </a>
+                    <a class="w-full sm:w-auto px-space-lg py-3.5 bg-surface-container hover:bg-surface-bright text-on-surface font-label-lg text-label-lg rounded-lg transition-colors text-center"
+                       asp-controller="Cinemas" asp-action="Index">
+                        Auditorium Formats
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        (function initCinemaFilters() {
+            const searchInput = document.getElementById('cinema-search');
+            const citySelect = document.getElementById('city-filter');
+            const formatPills = document.querySelectorAll('.format-pill');
+            const clearBtn = document.getElementById('reset-filter-btn');
+            const previewEmptyBtn = document.getElementById('simulate-empty-btn');
+            const cinemaCards = document.querySelectorAll('[data-cinema-card]');
+            const noResultsBox = document.getElementById('no-results');
+            const countEl = document.getElementById('cinema-count');
+
+            let currentFormat = 'all';
+
+            function applyFilters() {
+                const query = (searchInput?.value || '').toLowerCase().trim();
+                const selectedCity = citySelect?.value || 'all';
+
+                let visibleCount = 0;
+
+                cinemaCards.forEach(card => {
+                    const cardName = (card.getAttribute('data-name') || '').toLowerCase();
+                    const cardCity = (card.getAttribute('data-city') || '').toLowerCase();
+                    const cardFormats = card.getAttribute('data-formats') || '';
+
+                    const matchesQuery = !query || cardName.includes(query) || cardCity.includes(query);
+                    const matchesCity = (selectedCity === 'all') || cardCity.includes(selectedCity.toLowerCase());
+                    const matchesFormat = (currentFormat === 'all') || cardFormats.includes(currentFormat);
+
+                    if (matchesQuery && matchesCity && matchesFormat) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                if (countEl) {
+                    countEl.textContent = visibleCount;
+                }
+
+                if (visibleCount === 0) {
+                    noResultsBox?.classList.remove('hidden');
+                    noResultsBox?.classList.add('flex');
+                } else {
+                    noResultsBox?.classList.add('hidden');
+                    noResultsBox?.classList.remove('flex');
+                }
+            }
+
+            // Input events
+            searchInput?.addEventListener('input', applyFilters);
+            citySelect?.addEventListener('change', applyFilters);
+
+            // Pill clicks
+            formatPills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    formatPills.forEach(p => {
+                        p.classList.remove('bg-primary-container', 'text-on-primary-container', 'shadow-[0_0_12px_rgba(229,9,20,0.4)]');
+                        p.classList.add('bg-surface-container', 'text-secondary');
+                    });
+                    pill.classList.remove('bg-surface-container', 'text-secondary');
+                    pill.classList.add('bg-primary-container', 'text-on-primary-container', 'shadow-[0_0_12px_rgba(229,9,20,0.4)]');
+
+                    currentFormat = pill.getAttribute('data-format') || 'all';
+                    applyFilters();
+                });
+            });
+
+            // Clear filters
+            window.resetAllFilters = function() {
+                if (searchInput) searchInput.value = '';
+                if (citySelect) citySelect.value = 'all';
+                currentFormat = 'all';
+
+                formatPills.forEach((p, idx) => {
+                    if (idx === 0) {
+                        p.classList.remove('bg-surface-container', 'text-secondary');
+                        p.classList.add('bg-primary-container', 'text-on-primary-container', 'shadow-[0_0_12px_rgba(229,9,20,0.4)]');
+                    } else {
+                        p.classList.remove('bg-primary-container', 'text-on-primary-container', 'shadow-[0_0_12px_rgba(229,9,20,0.4)]');
+                        p.classList.add('bg-surface-container', 'text-secondary');
+                    }
+                });
+                applyFilters();
+            };
+
+            clearBtn?.addEventListener('click', window.resetAllFilters);
+
+            // Toggle Preview Empty State
+            previewEmptyBtn?.addEventListener('click', () => {
+                const isHidden = noResultsBox?.classList.contains('hidden');
+                if (isHidden) {
+                    cinemaCards.forEach(c => c.classList.add('hidden'));
+                    noResultsBox?.classList.remove('hidden');
+                    noResultsBox?.classList.add('flex');
+                    if (countEl) countEl.textContent = '0';
+                } else {
+                    window.resetAllFilters();
+                }
+            });
+        })();
+    </script>
+}
