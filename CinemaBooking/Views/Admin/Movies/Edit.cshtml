@@ -11,8 +11,16 @@
     </div>
 
     <div class="cb-card">
-        <form asp-controller="Movies" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+        <form asp-controller="AdminMovies" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ReleaseDate" />
+            <input type="hidden" asp-for="OriginalTitle" />
+            <input type="hidden" asp-for="Director" />
+            <input type="hidden" asp-for="Certification" />
+            <input type="hidden" asp-for="VoteAverage" />
+            <input type="hidden" asp-for="VoteCount" />
+            <input type="hidden" asp-for="Formats" />
+            <input type="hidden" asp-for="Locations" />
             <div asp-validation-summary="ModelOnly" class="mb-3"></div>
 
             <div class="row">
@@ -73,7 +81,7 @@
             </div>
 
             <button type="submit" class="btn btn-cb-primary">Save Changes</button>
-            <a class="btn btn-cb-secondary" asp-controller="Movies" asp-action="Index">Cancel</a>
+            <a class="btn btn-cb-secondary" asp-controller="AdminMovies" asp-action="Index">Cancel</a>
         </form>
     </div>
 </div>

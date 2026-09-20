@@ -1,82 +1,318 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var isHomeActive = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase);
+    var isCinemasActive = string.Equals(currentController, "Cinemas", StringComparison.OrdinalIgnoreCase);
+    var isMoviesActive = string.Equals(currentController, "Movies", StringComparison.OrdinalIgnoreCase);
+    var isShowtimesActive = string.Equals(currentController, "Showtimes", StringComparison.OrdinalIgnoreCase);
+    var isBookingActive = string.Equals(currentController, "Booking", StringComparison.OrdinalIgnoreCase);
+    var isAccountActive = string.Equals(currentController, "Account", StringComparison.OrdinalIgnoreCase);
+    var hideNavbarSearch = isCinemasActive || isMoviesActive || isAccountActive || isShowtimesActive || (ViewData["HideNavbarSearch"] as bool? == true);
+}
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CinemaBooking</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CinemaBooking.styles.css" asp-append-version="true" />
+    <title>@(ViewData["Title"] ?? "StarLight Cinemas") - StarLight Cinemas</title>
+
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+          rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet" />
+
+    <!-- Tailwind CSS with Stitch Theme Tokens -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "inverse-surface": "#e5e2e1",
+                            "secondary-fixed": "#e5e2e1",
+                            "tertiary": "#f1c111",
+                            "outline-variant": "#5e3f3b",
+                            "primary-fixed": "#ffdad5",
+                            "on-secondary": "#313030",
+                            "on-tertiary-container": "#4f3e00",
+                            "on-secondary-container": "#b7b4b4",
+                            "on-surface": "#e5e2e1",
+                            "surface-container-highest": "#353534",
+                            "on-tertiary-fixed-variant": "#584400",
+                            "background": "#131313",
+                            "primary": "#ffb4aa",
+                            "on-primary-fixed-variant": "#930007",
+                            "secondary": "#c8c6c5",
+                            "surface-container": "#201f1f",
+                            "error": "#ffb4ab",
+                            "surface-container-low": "#1c1b1b",
+                            "on-primary-fixed": "#410001",
+                            "inverse-primary": "#c0000c",
+                            "on-primary": "#690003",
+                            "surface-container-high": "#2a2a2a",
+                            "tertiary-fixed": "#ffe08b",
+                            "primary-fixed-dim": "#ffb4aa",
+                            "error-container": "#93000a",
+                            "on-background": "#e5e2e1",
+                            "secondary-container": "#474746",
+                            "outline": "#af8782",
+                            "surface-tint": "#ffb4aa",
+                            "primary-container": "#e50914",
+                            "on-secondary-fixed": "#1c1b1b",
+                            "on-tertiary-fixed": "#241a00",
+                            "on-error": "#690005",
+                            "inverse-on-surface": "#313030",
+                            "secondary-fixed-dim": "#c8c6c5",
+                            "surface-container-lowest": "#0e0e0e",
+                            "surface-bright": "#3a3939",
+                            "on-primary-container": "#fff7f6",
+                            "surface-dim": "#131313",
+                            "on-secondary-fixed-variant": "#474746",
+                            "tertiary-fixed-dim": "#f0c110",
+                            "on-tertiary": "#3d2f00",
+                            "surface-variant": "#353534",
+                            "tertiary-container": "#d1a600",
+                            "surface": "#131313",
+                            "on-surface-variant": "#e9bcb6",
+                            "on-error-container": "#ffdad6"
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.25rem",
+                            lg: "0.5rem",
+                            xl: "0.75rem",
+                            full: "9999px"
+                        },
+                        spacing: {
+                            "gutter-mobile": "0.75rem",
+                            "margin-mobile": "1rem",
+                            "space-xs": "0.25rem",
+                            "space-xl": "2.5rem",
+                            "space-md": "1rem",
+                            "margin": "3rem",
+                            "space-lg": "1.5rem",
+                            "space-sm": "0.5rem",
+                            "gutter": "1.5rem"
+                        },
+                        fontFamily: {
+                            "body-lg": ["Inter"],
+                            "headline-xl": ["Plus Jakarta Sans"],
+                            "headline-md": ["Plus Jakarta Sans"],
+                            "label-sm": ["Inter"],
+                            "label-md": ["Inter"],
+                            "body-md": ["Inter"],
+                            "headline-lg": ["Plus Jakarta Sans"],
+                            "label-lg": ["Inter"],
+                            "display-hero": ["Plus Jakarta Sans"],
+                            "display-hero-mobile": ["Plus Jakarta Sans"],
+                            "headline-sm": ["Plus Jakarta Sans"],
+                            "headline-xl-mobile": ["Plus Jakarta Sans"],
+                            "body-sm": ["Inter"]
+                        },
+                        fontSize: {
+                            "body-lg": ["16px", { lineHeight: "24px", letterSpacing: "-0.005em", fontWeight: "400" }],
+                            "headline-xl": ["40px", { lineHeight: "48px", letterSpacing: "-0.025em", fontWeight: "700" }],
+                            "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.015em", fontWeight: "600" }],
+                            "label-sm": ["10px", { lineHeight: "14px", letterSpacing: "0.06em", fontWeight: "700" }],
+                            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.04em", fontWeight: "600" }],
+                            "body-md": ["14px", { lineHeight: "22px", letterSpacing: "0em", fontWeight: "400" }],
+                            "headline-lg": ["30px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                            "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.02em", fontWeight: "600" }],
+                            "display-hero": ["56px", { lineHeight: "64px", letterSpacing: "-0.03em", fontWeight: "800" }],
+                            "display-hero-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "800" }],
+                            "headline-sm": ["18px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                            "headline-xl-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                            "body-sm": ["12px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "400" }]
+                        }
+                    }
+                }
+            };
+    </script>
+    <link rel="stylesheet" href="~/css/starlight.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark-navy border-bottom box-shadow mb-3">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Cine<span class="brand-accent">Verse</span></a>
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CinemaBooking</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+
+<body class="bg-surface-container-lowest font-body-md text-on-surface min-h-screen flex flex-col">
+    <!-- Top Sticky Header -->
+    <header
+        class="fixed top-0 left-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.8)]">
+        <div class="h-20 w-full px-gutter-mobile md:px-margin flex items-center justify-between">
+            <div class="flex items-center gap-space-lg">
+                <a style="display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;" asp-controller="Home" asp-action="Index">
+                    <span style="display:flex;align-items:center;justify-content:center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#e50914" stroke="#e50914" />
+                        </svg>
+                    </span>
+                    <span style="font-size:16px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ffffff;font-family:'Plus Jakarta Sans',sans-serif;">StarLight</span>
+                    <span style="font-size:15px;font-weight:400;letter-spacing:1px;color:#ffffff;">Cinemas</span>
+                </a>
+                <nav class="hidden lg:flex items-center gap-space-xs">
+                    <a class="font-label-lg px-space-md py-space-sm transition-colors @(isHomeActive ? "text-on-primary-container bg-primary-container shadow-[0_0_12px_rgba(229,9,20,0.4)] rounded-lg" : "text-on-surface-variant hover:text-on-surface")"
+                       asp-controller="Home" asp-action="Index">
+                        Home
+                    </a>
+                    <a class="font-label-lg px-space-md py-space-sm transition-colors @(isMoviesActive ? "text-on-primary-container bg-primary-container shadow-[0_0_12px_rgba(229,9,20,0.4)] rounded-lg" : "text-on-surface-variant hover:text-on-surface")"
+                       asp-controller="Movies" asp-action="Index">
+                        Movies
+                    </a>
+                    <a class="font-label-lg px-space-md py-space-sm transition-colors @(isCinemasActive ? "text-on-primary-container bg-primary-container shadow-[0_0_12px_rgba(229,9,20,0.4)] rounded-lg" : "text-on-surface-variant hover:text-on-surface")"
+                       asp-controller="Cinemas" asp-action="Index"
+                       aria-current="@(isCinemasActive ? "page" : "false")">
+                        Cinemas
+                    </a>
+                    <a class="font-label-lg px-space-md py-space-sm transition-colors @(isShowtimesActive ? "text-on-primary-container bg-primary-container shadow-[0_0_12px_rgba(229,9,20,0.4)] rounded-lg" : "text-on-surface-variant hover:text-on-surface")"
+                       asp-controller="Showtimes" asp-action="Index">
+                        Showtimes
+                    </a>
+                    <a class="font-label-lg px-space-md py-space-sm transition-colors @(isBookingActive ? "text-on-primary-container bg-primary-container shadow-[0_0_12px_rgba(229,9,20,0.4)] rounded-lg" : "text-on-surface-variant hover:text-on-surface")"
+                       asp-controller="Booking" asp-action="MyBookings">
+                        My Bookings
+                    </a>
+                </nav>
+            </div>
+            @if (!hideNavbarSearch)
+            {
+                <div class="flex-1 max-w-md mx-space-md hidden md:block">
+                    <div class="relative flex items-center w-full">
+                        <span
+                        class="material-symbols-outlined absolute left-3 text-secondary/60 pointer-events-none text-[20px]">search</span>
+                        <input id="global-search-input"
+                               class="w-full bg-[#181818] border border-[#333333] rounded-lg pl-10 pr-space-md py-2 text-on-surface placeholder-[#808080] font-body-sm text-body-sm focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container focus:shadow-[0_0_12px_rgba(229,9,20,0.35)] transition-all"
+                               placeholder="Search movies, cinemas, genres..." type="text"
+                               value="@(ViewData["InitialSearch"] ?? "")" />
+                    </div>
+                </div>
+            }
+            <div class="flex items-center gap-space-md">
+                @if (!hideNavbarSearch)
+                {
+                    <a href="#cinema-search" id="mobile-search-btn" aria-label="Search screenings"
+                       class="md:hidden w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">
+                        <span class="material-symbols-outlined">search</span>
+                    </a>
+                }
+                <div class="flex items-center gap-space-sm">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Profile">@User.Identity.Name</a>
-                            </li>
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
-                                </li>
-                            }
-                            <li class="nav-item">
-                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="nav-link btn btn-link">Logout</button>
-                                </form>
-                            </li>
+                            <a class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#e50914]/15 border border-[#e50914]/40 text-[#ff8088] hover:bg-[#e50914]/25 transition-colors"
+                               href="/Admin/Dashboard">
+                                <span class="material-symbols-outlined text-[14px]">admin_panel_settings</span>
+                                Admin Console
+                            </a>
                         }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        }
-                    </ul>
+                        <a class="flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-space-sm py-space-xs transition-colors"
+                           asp-controller="Account" asp-action="Profile">
+                            <span class="material-symbols-outlined text-[18px]">account_circle</span>
+                            <span class="hidden sm:inline">Profile</span>
+                        </a>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                            <button type="submit"
+                                    class="hidden sm:flex items-center text-on-surface-variant hover:text-white font-label-md text-label-md px-space-sm py-space-xs transition-colors bg-transparent border-0 cursor-pointer">
+                                Logout
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="hidden sm:flex items-center text-on-surface-variant hover:text-on-surface font-label-md text-label-md px-space-sm py-space-xs transition-colors"
+                           asp-controller="Account" asp-action="Login">
+                            Login
+                        </a>
+                    }
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - CinemaBooking - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+    </header>
+
+    <!-- Main Content Slot -->
+    <main class="w-full pt-20 bg-surface-container-lowest flex-1">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-surface-container-low mt-space-xl">
+        <div class="w-full px-gutter-mobile md:px-margin py-space-xl flex flex-col gap-space-xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-xl">
+                <div class="flex flex-col gap-space-sm">
+                    <div class="flex items-center gap-space-sm">
+                        <img alt="StarLight Cinemas" class="h-7 w-7 object-contain shrink-0"
+                             src="~/images/starlight-logo.svg" asp-append-version="true" />
+                        <span
+                        class="font-headline-sm text-headline-sm text-on-surface uppercase font-extrabold">StarLight</span>
+                    </div>
+                    <p class="font-body-sm text-body-sm text-secondary max-w-sm">Crafting cinematic memories with
+                        cutting-edge audiovisual technology and ultimate auditorium luxury.</p>
+                    </div>
+                    <div class="flex flex-col gap-space-sm">
+                        <span class="font-label-lg text-label-lg text-on-surface uppercase">Screening Formats</span>
+                        <div class="flex flex-wrap gap-space-xs">
+                            <span
+                                class="font-label-sm text-label-sm uppercase bg-surface-container text-secondary px-space-sm py-space-xs rounded">IMAX
+                                3D</span>
+                                <span
+                                    class="font-label-sm text-label-sm uppercase bg-surface-container text-secondary px-space-sm py-space-xs rounded">Dolby
+                                    Cinema</span>
+                                    <span
+                                    class="font-label-sm text-label-sm uppercase bg-surface-container text-secondary px-space-sm py-space-xs rounded">4DX</span>
+                                    <span
+                                        class="font-label-sm text-label-sm uppercase bg-surface-container text-secondary px-space-sm py-space-xs rounded">VIP
+                                        Lounge</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-space-sm">
+                                    <span class="font-label-lg text-label-lg text-on-surface uppercase">Cinemas &amp; Events</span>
+                                    <div class="flex flex-col gap-space-xs font-body-sm text-body-sm text-secondary">
+                                        <a class="hover:text-on-surface transition-colors" asp-controller="Cinemas"
+                                           asp-action="Index">Downtown Grand Arena</a>
+                                        <a class="hover:text-on-surface transition-colors" asp-controller="Cinemas"
+                                           asp-action="Index">Metro IMAX Pavilion</a>
+                                        <a class="hover:text-on-surface transition-colors" asp-controller="Cinemas"
+                                           asp-action="Index">The Westside Luxe Suites</a>
+                                        <a class="hover:text-on-surface transition-colors" asp-controller="Cinemas"
+                                           asp-action="Index">Private Screenings &amp; Hire</a>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-space-sm">
+                                    <span class="font-label-lg text-label-lg text-on-surface uppercase">Connect &amp; Support</span>
+                                    <div class="flex items-center gap-space-sm text-secondary">
+                                        <span class="material-symbols-outlined hover:text-on-surface cursor-pointer">mail</span>
+                                        <span
+                                        class="material-symbols-outlined hover:text-on-surface cursor-pointer">confirmation_number</span>
+                                        <span class="material-symbols-outlined hover:text-on-surface cursor-pointer">help</span>
+                                        <span
+                                        class="material-symbols-outlined hover:text-on-surface cursor-pointer">smart_display</span>
+                                    </div>
+                                    <span class="font-body-sm text-body-sm text-secondary">24/7 Guest Concierge available across all
+                                        flagship theaters.</span>
+                                    </div>
+                                </div>
+                                <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-md">
+                                    <span class="font-body-sm text-body-sm text-secondary">&copy; 2025 StarLight Cinemas Worldwide, Inc. All
+                                        rights reserved.</span>
+                                        <div class="flex items-center gap-space-md font-body-sm text-body-sm text-secondary">
+                                            <a class="hover:text-on-surface transition-colors" asp-controller="Home"
+                                               asp-action="Privacy">Privacy Policy</a>
+                                            <a class="hover:text-on-surface transition-colors" asp-controller="Home" asp-action="Privacy">Terms
+                                                of Service</a>
+                                                <a class="hover:text-on-surface transition-colors" asp-controller="Home" asp-action="Privacy">Ad
+                                                    Choices</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </footer>
+
+                                    <!-- Global Scripts -->
+                                    <script src="~/js/starlight.js" asp-append-version="true"></script>
+                                    @await RenderSectionAsync("Scripts", required: false)
+                                </body>
+
+                            </html>

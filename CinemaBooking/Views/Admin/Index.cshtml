@@ -1,34 +1,6 @@
+@model AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
 }
-
-<div class="cb-auth-page">
-    <div class="mb-4">
-        <h2 class="text-white mb-1">Admin Dashboard</h2>
-        <p class="text-muted-cb mb-0">Manage the CineVerse catalog.</p>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="cb-card h-100">
-                <h4 class="mb-2">Movies</h4>
-                <p class="text-muted-cb">Add, edit, or remove movies from the catalog.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a class="btn btn-cb-primary" asp-controller="Movies" asp-action="Index">Manage Movies</a>
-                    <a class="btn btn-cb-secondary" asp-controller="Movies" asp-action="Create">+ Add Movie</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="cb-card h-100">
-                <h4 class="mb-2">Cinemas</h4>
-                <p class="text-muted-cb">Add, edit, or remove cinema locations.</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a class="btn btn-cb-primary" asp-controller="Cinemas" asp-action="Index">Manage Cinemas</a>
-                    <a class="btn btn-cb-secondary" asp-controller="Cinemas" asp-action="Create">+ Add Cinema</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+@await Html.PartialAsync("~/Views/Admin/Dashboard.cshtml", Model)

@@ -1,44 +1,233 @@
 @model LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    Layout = null;
+    ViewData["Title"] = "Sign In – StarLight Cinemas";
 }
 
-<div class="cb-auth-page">
-    <div class="cb-auth-card">
-        <div class="text-center mb-4">
-            <h2>Cine<span class="brand-accent" style="color: var(--cb-pink);">Verse</span></h2>
-            <p class="text-muted-cb mb-0">Welcome back! Sign in to continue</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sign in to your StarLight Cinemas account to access tickets, rewards, and screening reservations." />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+    <link rel="icon" href="~/favicon.ico" />
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sl-header">
+        <a href="@Url.Action("Index", "Home")" class="sl-logo">STARLIGHT</a>
+        <a href="@Url.Action("Index", "Movies")" class="sl-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back to Movies
+        </a>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main class="sl-main">
+
+        <!-- Theatrical decoration -->
+        <div class="sl-theatrical">
+            <span class="sl-theatrical-block"></span>
+            <span class="sl-theatrical-block"></span>
+            <span class="sl-theatrical-block"></span>
+            <span class="sl-theatrical-text">
+                ST<span class="sl-theatrical-star">★</span>RLIGHT THEATRICAL EXPERIENCE
+            </span>
+            <span class="sl-theatrical-block"></span>
+            <span class="sl-theatrical-block"></span>
+            <span class="sl-theatrical-block"></span>
         </div>
 
-        <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate>
-            <div asp-validation-summary="ModelOnly" class="mb-3"></div>
+        <!-- Login Card -->
+        <div class="sl-card">
 
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+            <!-- Icon badge -->
+            <div class="sl-card-icon">
+                <!-- Cinema / film strip icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                    <line x1="7" y1="2" x2="7" y2="22" />
+                    <line x1="17" y1="2" x2="17" y2="22" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <line x1="2" y1="7" x2="7" y2="7" />
+                    <line x1="2" y1="17" x2="7" y2="17" />
+                    <line x1="17" y1="7" x2="22" y2="7" />
+                    <line x1="17" y1="17" x2="22" y2="17" />
+                </svg>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" placeholder="Your password" autocomplete="current-password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            <!-- Brand line -->
+            <div class="sl-brand-line">
+                <span class="sl-brand-starlight">STARLIGHT</span> • CINEMA PASS
             </div>
 
-            <div class="mb-4 form-check">
-                <input asp-for="RememberMe" class="form-check-input" />
-                <label asp-for="RememberMe" class="form-check-label text-muted-cb"></label>
-            </div>
-
-            <button type="submit" class="btn btn-cb-primary w-100">Sign In</button>
-
-            <p class="text-center text-muted-cb mt-4 mb-0">
-                Don't have an account? <a asp-controller="Account" asp-action="Register">Create one</a>
+            <!-- Heading -->
+            <h1 class="sl-card-heading">Welcome back</h1>
+            <p class="sl-card-subtext">
+                Sign in to access your tickets, rewards, and<br />
+                screening reservations
             </p>
-        </form>
-    </div>
-</div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+            <!-- Validation summary -->
+            <div asp-validation-summary="ModelOnly" class="sl-validation-summary"></div>
+
+            <!-- Login Form -->
+            <form asp-controller="Account" asp-action="Login"
+                  asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate>
+
+                <!-- Email -->
+                <div class="sl-form-group">
+                    <div class="sl-label-row">
+                        <label for="Email" class="sl-label">Email Address</label>
+                        <span class="sl-label-hint">Registered ID</span>
+                    </div>
+                    <div class="sl-input-wrap">
+                        <!-- Envelope icon -->
+                        <svg class="sl-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <path d="M22 4l-10 8L2 4" />
+                        </svg>
+                        <input asp-for="Email"
+                               id="Email"
+                               class="sl-input"
+                               type="email"
+                               placeholder="you@domain.com"
+                               autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email" class="sl-validation"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="sl-form-group">
+                    <div class="sl-label-row">
+                        <label for="Password" class="sl-label">Password</label>
+                    </div>
+                    <div class="sl-input-wrap">
+                        <!-- Lock icon -->
+                        <svg class="sl-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        <input asp-for="Password"
+                               id="Password"
+                               class="sl-input sl-input-password"
+                               type="password"
+                               placeholder="Enter your password"
+                               autocomplete="current-password" />
+                        <!-- Eye toggle -->
+                        <button type="button" class="sl-eye-toggle" id="togglePassword" aria-label="Toggle password visibility">
+                            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="sl-validation"></span>
+                </div>
+
+                <!-- Remember me -->
+                <div class="sl-remember-row">
+                    <input asp-for="RememberMe"
+                           id="RememberMe"
+                           type="checkbox"
+                           class="sl-checkbox" />
+                    <label for="RememberMe" class="sl-remember-label">Remember me</label>
+                </div>
+
+                <!-- Sign In button -->
+                <button type="submit" class="sl-btn-signin" id="signInBtn">
+                    Sign In &rarr;
+                </button>
+            </form>
+
+            <!-- OR divider -->
+            <div class="sl-divider">OR</div>
+
+            <!-- Register prompt -->
+            <p class="sl-register-prompt">
+                Don't have an account?
+                <a asp-controller="Account" asp-action="Register">Register</a>
+            </p>
+        </div>
+
+        <!-- Feature indicators -->
+        <div class="sl-features">
+            <div class="sl-feature">
+                <!-- Shield / lock icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                <span class="sl-feature-text">256-BIT ENCRYPTED</span>
+            </div>
+            <div class="sl-feature">
+                <!-- QR / grid icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                </svg>
+                <span class="sl-feature-text">INSTANT QR ACCESS</span>
+            </div>
+            <div class="sl-feature">
+                <!-- Star / reward icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                <span class="sl-feature-text">CLUB STARLIGHT REWARDS</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="sl-footer">
+        &copy; 2025 StarLight Cinemas Worldwide. All rights reserved.
+    </footer>
+
+    <!-- ===== Scripts ===== -->
+    <script>
+        // Password visibility toggle
+        (function () {
+            var toggleBtn = document.getElementById('togglePassword');
+            var passwordInput = document.getElementById('Password');
+            var eyeIcon = document.getElementById('eyeIcon');
+
+            if (toggleBtn && passwordInput && eyeIcon) {
+                toggleBtn.addEventListener('click', function () {
+                    var isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+
+                    // Swap icon
+                    if (isPassword) {
+                        eyeIcon.innerHTML =
+                            '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />' +
+                            '<line x1="1" y1="1" x2="23" y2="23" />';
+                    } else {
+                        eyeIcon.innerHTML =
+                            '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />' +
+                            '<circle cx="12" cy="12" r="3" />';
+                    }
+                });
+            }
+        })();
+    </script>
+
+    <!-- jQuery validation for ASP.NET unobtrusive validation -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

@@ -1,41 +1,206 @@
-﻿@model BuisnessLogicLayer.ViewModels.PaymentViewModel
+@model BuisnessLogicLayer.ViewModels.PaymentViewModel
+@{
+    ViewData["Title"] = "Secure Payment";
+}
 
-<h2>Payment</h2>
-
-<form asp-action="Payment" method="post">
-
-    <input type="hidden" asp-for="BookingId" />
-    <input type="hidden" asp-for="Amount" />
-
-    <div>
-        <label>Amount</label>
-        <input asp-for="Amount" readonly />
+<div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+    <!-- Breadcrumb & Header -->
+    <div class="mb-8 border-b border-[#242424] pb-6">
+        <div class="flex items-center gap-2 text-xs text-gray-400 mb-2">
+            <a asp-controller="Movies" asp-action="Index" class="hover:text-white transition-colors">MOVIES</a>
+            <span>/</span>
+            <span class="text-gray-300">BOOKING #@Model.BookingId</span>
+            <span>/</span>
+            <span class="text-[#e50914] font-semibold">PAYMENT</span>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight font-['Plus_Jakarta_Sans']">Complete Your Payment</h1>
+                <p class="text-sm text-gray-400 mt-1">Choose your preferred payment method to finalize ticket reservation.</p>
+            </div>
+            <div class="hidden sm:flex items-center gap-2 bg-[#1a1a1a] border border-[#333] px-3 py-1.5 rounded-xl text-xs text-emerald-400">
+                <span class="material-symbols-outlined text-[16px]">lock</span>
+                <span>256-Bit SSL Encrypted</span>
+            </div>
+        </div>
     </div>
 
-    <div>
-        <label>Payment Method</label>
-        <select asp-for="PaymentMethod">
-            <option value="">Select Payment Method</option>
-            <option value="Card">Card</option>
-            <option value="Cash">Cash</option>
-        </select>
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <!-- Summary Sidebar -->
+        <div class="md:col-span-5 flex flex-col gap-6">
+            <div class="bg-[#141414] border border-[#242424] rounded-2xl p-6 shadow-2xl">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#ff8088] bg-[#e50914]/10 border border-[#e50914]/30 px-2 py-0.5 rounded">PAYMENT RECAP</span>
+                
+                @{
+                    var bk = ViewBag.Booking as global::Booking;
+                }
+                @if (bk != null)
+                {
+                    <div class="mt-4 pb-4 border-b border-[#222]">
+                        <h4 class="text-base font-bold text-white font-['Plus_Jakarta_Sans']">@(bk.Showtime?.Movie?.Title ?? "Reserved Movie")</h4>
+                        <div class="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[14px] text-[#e50914]">theaters</span>
+                            <span>@(bk.Showtime?.Cinema?.Name ?? bk.Showtime?.Hall?.Cinema?.Name ?? "StarLight Cinema")</span>
+                            <span>&bull;</span>
+                            <span>@(bk.Showtime?.Hall?.Name ?? "Auditorium")</span>
+                        </div>
+                        @if (bk.BookingSeats != null && bk.BookingSeats.Any())
+                        {
+                            <div class="text-xs text-amber-400 font-mono mt-2 font-bold">
+                                Seats: @string.Join(", ", bk.BookingSeats.Select(s => s.Seat != null ? $"{s.Seat.RowLabel}{s.Seat.SeatNumber}" : $"#{s.SeatId}"))
+                            </div>
+                        }
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <div class="text-xs text-gray-400">Booking Reference</div>
+                    <div class="text-base font-bold text-white font-mono mt-0.5">#@Model.BookingId</div>
+                </div>
+
+                <div class="border-t border-[#222] my-4 pt-4 flex justify-between items-baseline">
+                    <span class="text-sm text-gray-300 font-medium">Payable Amount</span>
+                    <div class="text-right">
+                        <span class="text-3xl font-extrabold text-[#ff8088] font-['Plus_Jakarta_Sans']">@Model.Amount.ToString("0.00")</span>
+                        <span class="text-xs text-gray-400 font-medium ml-1">EGP</span>
+                    </div>
+                </div>
+
+                <div class="text-[11px] text-gray-500 leading-relaxed border-t border-[#222] pt-4">
+                    All applicable theater entertainment taxes and auditorium sound technology fees are included.
+                </div>
+            </div>
+
+            <div class="bg-[#141414] border border-[#242424] rounded-2xl p-4 flex items-center gap-3 text-xs text-gray-400">
+                <span class="material-symbols-outlined text-[#f59e0b] text-[20px] shrink-0">workspace_premium</span>
+                <span>StarLight VIP Guaranteed Entry &middot; Digital QR Pass issued instantly</span>
+            </div>
+        </div>
+
+        <!-- Payment Method & Form -->
+        <div class="md:col-span-7">
+            <div class="bg-[#141414] border border-[#242424] rounded-2xl p-6 sm:p-8 shadow-2xl">
+                <form asp-controller="Payment" asp-action="Payment" method="post" id="paymentForm" class="space-y-6">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="BookingId" />
+                    <input type="hidden" asp-for="Amount" />
+
+                    <!-- Payment Method Selector -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-3">
+                            Select Payment Method
+                        </label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="payment-method-card flex flex-col items-center justify-center p-4 rounded-xl border border-[#e50914] bg-[#e50914]/10 cursor-pointer transition-all text-center">
+                                <input type="radio" asp-for="PaymentMethod" value="Card" checked class="sr-only payment-radio" />
+                                <span class="material-symbols-outlined text-[#e50914] text-[26px] mb-1">credit_card</span>
+                                <span class="text-xs font-bold text-white">Credit / Debit Card</span>
+                                <span class="text-[10px] text-gray-400 mt-0.5">Visa, Mastercard, Meeza</span>
+                            </label>
+
+                            <label class="payment-method-card flex flex-col items-center justify-center p-4 rounded-xl border border-[#333] bg-[#1a1a1a] cursor-pointer transition-all text-center hover:border-gray-500">
+                                <input type="radio" asp-for="PaymentMethod" value="Cash" class="sr-only payment-radio" />
+                                <span class="material-symbols-outlined text-gray-400 text-[26px] mb-1">point_of_sale</span>
+                                <span class="text-xs font-bold text-white">Pay at Box Office</span>
+                                <span class="text-[10px] text-gray-400 mt-0.5">Cash / Kiosk on Arrival</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Card Fields (shown when Card is selected) -->
+                    <div id="cardFields" class="space-y-4 pt-2">
+                        <div>
+                            <label asp-for="CardNumber" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">
+                                Card Number
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-3 text-gray-500 text-[18px]">credit_card</span>
+                                <input asp-for="CardNumber" placeholder="4111 2222 3333 4444" value="4111222233334444"
+                                       class="w-full bg-[#1c1c1c] border border-[#333] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e50914] font-mono transition-all" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label asp-for="ExpiryDate" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">
+                                    Expiry Date
+                                </label>
+                                <input asp-for="ExpiryDate" placeholder="MM/YY" value="12/28"
+                                       class="w-full bg-[#1c1c1c] border border-[#333] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e50914] font-mono transition-all" />
+                            </div>
+                            <div>
+                                <label asp-for="CVV" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">
+                                    CVV / CVC
+                                </label>
+                                <input asp-for="CVV" placeholder="123" value="789" type="password" maxlength="4"
+                                       class="w-full bg-[#1c1c1c] border border-[#333] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e50914] font-mono transition-all" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cash Notice (hidden by default) -->
+                    <div id="cashNotice" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+                        <div class="font-bold mb-1 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px]">info</span>
+                            Box Office Hold Policy
+                        </div>
+                        Your reservation will be held at the cinema box office until 30 minutes before showtime. Present your booking reference upon arrival.
+                    </div>
+
+                    <div class="pt-4 border-t border-[#222]">
+                        <button type="submit" id="btnPay"
+                                class="w-full bg-[#e50914] hover:bg-[#b20710] text-white font-semibold text-sm py-3.5 px-6 rounded-xl shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+                            <span class="material-symbols-outlined text-[18px]">lock</span>
+                            <span id="btnPayText">Pay @Model.Amount.ToString("0.00") EGP &amp; Issue Tickets</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div>
-        <label>Card Number</label>
-        <input asp-for="CardNumber" />
-    </div>
+@section Scripts {
+    <script>
+        (function () {
+            const radios = document.querySelectorAll('.payment-radio');
+            const cardFields = document.getElementById('cardFields');
+            const cashNotice = document.getElementById('cashNotice');
+            const btnPayText = document.getElementById('btnPayText');
+            const amount = '@Model.Amount.ToString("0.00")';
 
-    <div>
-        <label>Expiry Date</label>
-        <input asp-for="ExpiryDate" />
-    </div>
+            radios.forEach(r => {
+                r.addEventListener('change', function () {
+                    document.querySelectorAll('.payment-method-card').forEach(c => {
+                        c.classList.remove('border-[#e50914]', 'bg-[#e50914]/10');
+                        c.classList.add('border-[#333]', 'bg-[#1a1a1a]');
+                        const icon = c.querySelector('.material-symbols-outlined');
+                        if (icon) {
+                            icon.classList.remove('text-[#e50914]');
+                            icon.classList.add('text-gray-400');
+                        }
+                    });
 
-    <div>
-        <label>CVV</label>
-        <input asp-for="CVV" />
-    </div>
+                    const parent = this.closest('.payment-method-card');
+                    parent.classList.remove('border-[#333]', 'bg-[#1a1a1a]');
+                    parent.classList.add('border-[#e50914]', 'bg-[#e50914]/10');
+                    const icon = parent.querySelector('.material-symbols-outlined');
+                    if (icon) {
+                        icon.classList.remove('text-gray-400');
+                        icon.classList.add('text-[#e50914]');
+                    }
 
-    <button type="submit">Pay Now</button>
-
-</form>
+                    if (this.value === 'Cash') {
+                        cardFields.classList.add('hidden');
+                        cashNotice.classList.remove('hidden');
+                        btnPayText.textContent = 'Confirm Reservation (Pay on Arrival)';
+                    } else {
+                        cardFields.classList.remove('hidden');
+                        cashNotice.classList.add('hidden');
+                        btnPayText.textContent = 'Pay ' + amount + ' EGP & Issue Tickets';
+                    }
+                });
+            });
+        })();
+    </script>
+}
