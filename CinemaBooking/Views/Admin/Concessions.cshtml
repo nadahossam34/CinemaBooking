@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Concessions Management";
+    Layout = "_AdminLayout";
+}
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div>
+        <div class="flex items-center gap-2 text-xs uppercase font-bold text-amber-500 tracking-widest mb-1">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            Food &amp; Beverage
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white font-['Plus_Jakarta_Sans'] tracking-tight">
+            Concessions &amp; Merchandise
+        </h1>
+        <p class="text-sm text-gray-400 mt-1">
+            Manage cinema snacks, gourmet combos, artisanal beverages, and merchandise inventory.
+        </p>
+    </div>
+    <div class="flex items-center gap-3">
+        <button type="button" class="inline-flex items-center gap-2 bg-[#e50914] hover:bg-[#b20710] text-white text-sm font-semibold px-4 py-2.5 rounded-lg shadow-[0_0_16px_rgba(229,9,20,0.4)] transition-all">
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            Add Item
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Item 1 -->
+    <div class="bg-[#171717] border border-[#262626] rounded-xl p-5 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded">Gourmet Popcorn</span>
+                <span class="text-emerald-400 font-bold text-sm">EGP 120.00</span>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1">Truffle &amp; Butter Popcorn</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">Warm freshly popped jumbo kernels tossed with white truffle oil and pure sea salt.</p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-[#242424] flex items-center justify-between text-xs text-gray-400">
+            <span>In stock: 450 units</span>
+            <span class="text-emerald-400 font-medium">Available</span>
+        </div>
+    </div>
+
+    <!-- Item 2 -->
+    <div class="bg-[#171717] border border-[#262626] rounded-xl p-5 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="bg-[#e50914]/15 border border-[#e50914]/30 text-[#ff8088] text-[10px] font-bold px-2 py-0.5 rounded">Combo</span>
+                <span class="text-emerald-400 font-bold text-sm">EGP 210.00</span>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1">StarLight Duo Premiere Combo</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">2 Large drinks, 1 Giant Caramel popcorn, and choice of nachos or candy bites.</p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-[#242424] flex items-center justify-between text-xs text-gray-400">
+            <span>In stock: 280 units</span>
+            <span class="text-emerald-400 font-medium">Available</span>
+        </div>
+    </div>
+
+    <!-- Item 3 -->
+    <div class="bg-[#171717] border border-[#262626] rounded-xl p-5 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="bg-blue-500/15 border border-blue-500/30 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded">Beverage</span>
+                <span class="text-emerald-400 font-bold text-sm">EGP 85.00</span>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1">Artisanal Mocktail &amp; Soft Drinks</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">Infused sparkling pomegranate citrus mocktails with crushed ice and fresh mint.</p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-[#242424] flex items-center justify-between text-xs text-gray-400">
+            <span>In stock: 600 units</span>
+            <span class="text-emerald-400 font-medium">Available</span>
+        </div>
+    </div>
+</div>

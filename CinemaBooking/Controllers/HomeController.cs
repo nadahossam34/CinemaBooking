@@ -1,14 +1,31 @@
+using CinemaBooking.Data;
 using CinemaBooking.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace CinemaBooking.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly AppDbContext _context;
+
+        public HomeController(AppDbContext context)
         {
-            return View();
+            _context = context;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var movies = await _context.Movies
+                .AsNoTracking()
+                .Include(m => m.Showtimes)
+                .OrderByDescending(m => m.VoteAverage)
+                .ThenByDescending(m => m.Id)
+                .Take(6)
+                .ToListAsync();
+
+            return View(movies);
         }
 
         public IActionResult Privacy()

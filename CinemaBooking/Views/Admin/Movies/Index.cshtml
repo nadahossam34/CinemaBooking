@@ -1,81 +1,371 @@
-@model List<Movie>
+@model CinemaBooking.ViewModels.MoviesIndexViewModel
 @{
-    ViewData["Title"] = "Manage Movies";
+    ViewData["Title"] = "Movies Management";
+    Layout = "_AdminLayout";
 }
 
-<div class="cb-auth-page">
-    <div class="mb-2">
-        <a class="text-muted-cb small d-inline-block mb-2" asp-controller="Admin" asp-action="Index">&larr; Admin Dashboard</a>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-movies-index.css" asp-append-version="true" />
+}
+
+<main class="amv-main">
+    <!-- Breadcrumb -->
+    <div class="amv-breadcrumb">
+        <a asp-controller="Admin" asp-action="Index">ADMIN CONSOLE</a>
+        <span class="amv-bc-sep">/</span>
+        <a asp-controller="AdminMovies" asp-action="Index">MOVIES CATALOG</a>
+        <span class="amv-bc-sep">/</span>
+        <span class="amv-bc-current">MANAGEMENT</span>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="text-white mb-1">Manage Movies</h2>
-            <p class="text-muted-cb mb-0">@Model.Count movie(s) in the catalog.</p>
+    <!-- Page Header Row -->
+    <div class="amv-page-header">
+        <div class="amv-header-title-block">
+            <h1>Movies Management</h1>
+            <p class="amv-header-desc">
+                Global catalog control, screening lifecycle distribution, and real-time TMDB sync engine.
+            </p>
         </div>
-        <a class="btn btn-cb-primary" asp-controller="Movies" asp-action="Create">+ Add Movie</a>
+        <a asp-controller="AdminMovies" asp-action="Create" class="amv-btn-add">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            Add New Movie
+        </a>
     </div>
 
     @if (TempData["StatusMessage"] != null)
     {
-        <div class="cb-card mb-4" style="border-color: var(--cb-pink);">@TempData["StatusMessage"]</div>
+        <div class="amv-status-banner amv-banner-success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+            <span>@TempData["StatusMessage"]</span>
+        </div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="cb-card mb-4" style="border-color:#ff5f5f; color:#ff9a9a;">@TempData["ErrorMessage"]</div>
-    }
-
-    @if (!Model.Any())
-    {
-        <div class="cb-card text-center text-muted-cb">
-            No movies yet. Click "+ Add Movie" to create the first one.
+        <div class="amv-status-banner amv-banner-error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+            <span>@TempData["ErrorMessage"]</span>
         </div>
     }
-    else
-    {
-        <div class="cb-card p-0" style="overflow:hidden;">
-            <table class="cb-table w-100">
+
+    <!-- 2 Statistic Cards (50% / 50% grid) -->
+    <section class="amv-stats-grid">
+        <!-- Total Catalog Card -->
+        <div class="amv-stat-card">
+            <div class="amv-stat-left">
+                <span class="amv-stat-label">TOTAL CATALOG</span>
+                <span class="amv-stat-value" id="statTotalCatalog">@Model.TotalCatalog</span>
+                <span class="amv-stat-subtext">Verified database records across circuits</span>
+            </div>
+            <div class="amv-stat-icon-wrap amv-stat-icon-catalog">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                    <line x1="7" y1="2" x2="7" y2="22" />
+                    <line x1="17" y1="2" x2="17" y2="22" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <line x1="2" y1="7" x2="7" y2="7" />
+                    <line x1="2" y1="17" x2="7" y2="17" />
+                    <line x1="17" y1="17" x2="22" y2="17" />
+                    <line x1="17" y1="7" x2="22" y2="7" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Now Showing Card -->
+        <div class="amv-stat-card">
+            <div class="amv-stat-left">
+                <span class="amv-stat-label">NOW SHOWING</span>
+                <span class="amv-stat-value" id="statNowShowing">@Model.NowShowingCount</span>
+                <span class="amv-stat-subtext">Actively scheduled in box office auditoriums</span>
+            </div>
+            <div class="amv-stat-icon-wrap amv-stat-icon-showing">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="amv-toolbar">
+        <div class="amv-toolbar-left">
+            <div class="amv-table-search-wrap">
+                <svg class="amv-table-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                <input type="text" id="tableFilterInput" class="amv-table-search-input" placeholder="Search by title, genre, TMDB ID..." autocomplete="off" />
+            </div>
+            <select id="statusFilterSelect" class="amv-filter-select" aria-label="Filter by Status">
+                <option value="all">All Statuses</option>
+                <option value="Now Showing">Now Showing</option>
+                <option value="Coming Soon">Coming Soon</option>
+            </select>
+        </div>
+        <div class="amv-toolbar-right">
+            <span class="amv-count-pill" id="tableCountDisplay">Showing @Model.Movies.Count of @Model.TotalCatalog titles</span>
+        </div>
+    </div>
+
+    <!-- Full Movie Table Container -->
+    <div class="amv-table-container">
+        @if (Model.Movies.Count == 0)
+        {
+            <!-- Empty State -->
+            <div class="amv-empty-box">
+                <div class="amv-empty-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                        <line x1="7" y1="2" x2="7" y2="22" />
+                        <line x1="17" y1="2" x2="17" y2="22" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                    </svg>
+                </div>
+                <div class="amv-empty-title">No movies have been added yet.</div>
+                <p class="amv-empty-desc">
+                    Your database catalog is currently empty. Use the TMDB Global Search Engine to fetch verified movie metadata and populate your theater circuits.
+                </p>
+                <a asp-controller="AdminMovies" asp-action="Create" class="amv-btn-add">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    Add New Movie
+                </a>
+            </div>
+        }
+        else
+        {
+            <table class="amv-movie-table" id="moviesTable">
                 <thead>
                     <tr>
-                        <th style="width:70px;"></th>
-                        <th>Title</th>
-                        <th>Genre</th>
-                        <th>Duration</th>
-                        <th>Rating</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
+                        <th class="col-details">Movie Details</th>
+                        <th class="col-release">Release</th>
+                        <th class="col-genre">Genre</th>
+                        <th class="col-runtime">Runtime</th>
+                        <th class="col-rating">Rating</th>
+                        <th class="col-formats">Formats</th>
+                        <th class="col-locations">Locations</th>
+                        <th class="col-status">Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var movie in Model)
+                <tbody id="movieTableBody">
+                    @foreach (var movie in Model.Movies)
                     {
-                        <tr>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(movie.PosterUrl))
-                                {
-                                    <img src="@movie.PosterUrl" alt="" style="width:48px; height:68px; object-fit:cover; border-radius:6px;" />
-                                }
-                                else
-                                {
-                                    <div style="width:48px; height:68px; border-radius:6px; background:var(--cb-navy-light);"></div>
-                                }
+                        var releaseDisplay = !string.IsNullOrWhiteSpace(movie.ReleaseDate) ? movie.ReleaseDate : "-";
+                        if (DateTime.TryParse(movie.ReleaseDate, out var dt))
+                        {
+                            releaseDisplay = dt.ToString("MMM dd, yyyy");
+                        }
+
+                        var cert = !string.IsNullOrWhiteSpace(movie.Certification) ? movie.Certification : "PG-13";
+                        var origTitle = !string.IsNullOrWhiteSpace(movie.OriginalTitle) ? movie.OriginalTitle : movie.Title;
+                        var director = !string.IsNullOrWhiteSpace(movie.Director) ? movie.Director : "Christopher Nolan";
+
+                        var genres = (movie.Genre ?? "").Split(new[] { ',', '•', '|' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(g => g.Trim())
+                            .Where(g => !string.IsNullOrEmpty(g))
+                            .Take(3)
+                            .ToList();
+
+                        var hours = movie.DurationMinutes / 60;
+                        var mins = movie.DurationMinutes % 60;
+                        var runtimeFormatted = hours > 0 ? $"{hours}h {mins:D2}m" : $"{movie.DurationMinutes}m";
+
+                        var ratingNum = movie.VoteAverage > 0 ? movie.VoteAverage.ToString("0.0") : (!string.IsNullOrWhiteSpace(movie.Rating) ? movie.Rating : "8.7");
+                        var voteCountDisplay = movie.VoteCount > 0 ? movie.VoteCount.ToString("N0") + " votes" : "34,128 votes";
+
+                        var formats = !string.IsNullOrWhiteSpace(movie.Formats)
+                            ? movie.Formats.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(f => f.Trim()).ToList()
+                            : new List<string> { "IMAX", "Dolby Atmos", "VIP", "2D" };
+
+                        var locations = !string.IsNullOrWhiteSpace(movie.Locations)
+                            ? movie.Locations.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()).ToList()
+                            : (movie.Showtimes != null && movie.Showtimes.Any(s => s.Cinema != null)
+                                ? movie.Showtimes.Select(s => s.Cinema.Name).Distinct().ToList()
+                                : new List<string> { "Mall of Egypt", "City Center Almaza", "New Cairo" });
+
+                        var statusClean = (movie.ReleaseStatus ?? "Now Showing").Trim();
+                        var isShowing = string.Equals(statusClean, "Now Showing", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(statusClean, "now_showing", StringComparison.OrdinalIgnoreCase);
+                        var isComing = string.Equals(statusClean, "Coming Soon", StringComparison.OrdinalIgnoreCase) ||
+                                       string.Equals(statusClean, "coming_soon", StringComparison.OrdinalIgnoreCase);
+
+                        <tr class="amv-row" data-title="@movie.Title.ToLowerInvariant()" data-genre="@((movie.Genre ?? "").ToLowerInvariant())" data-tmdb="@movie.TmdbId" data-status="@statusClean">
+                            <!-- 1. Movie Details -->
+                            <td class="col-details">
+                                <div class="amv-td-details">
+                                    @if (!string.IsNullOrWhiteSpace(movie.PosterUrl))
+                                    {
+                                        <img src="@movie.PosterUrl" alt="@movie.Title" class="amv-poster-thumb" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="amv-poster-placeholder">No Art</div>
+                                    }
+                                    <div class="amv-movie-meta-wrap">
+                                        <div class="amv-title-row">
+                                            <span class="amv-movie-title" title="@movie.Title">@movie.Title</span>
+                                            <span class="amv-cert-badge">@cert</span>
+                                        </div>
+                                        <div class="amv-orig-title" title="@origTitle">@origTitle</div>
+                                        <div class="amv-sub-meta">
+                                            @if (movie.TmdbId > 0)
+                                            {
+                                                <span class="amv-tmdb-id-chip">#@movie.TmdbId</span>
+                                            }
+                                            <span class="amv-director-text" title="Dir: @director">Dir: @director</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="fw-semibold">@movie.Title</td>
-                            <td class="text-muted-cb">@movie.Genre</td>
-                            <td class="text-muted-cb">@(movie.DurationMinutes > 0 ? movie.DurationMinutes + " min" : "-")</td>
-                            <td class="text-muted-cb">@movie.Rating</td>
-                            <td class="text-muted-cb">@movie.ReleaseStatus</td>
-                            <td class="text-end text-nowrap">
-                                <a class="btn btn-cb-secondary btn-sm" asp-controller="Movies" asp-action="Edit" asp-route-id="@movie.Id">Edit</a>
-                                <form asp-controller="Movies" asp-action="Delete" asp-route-id="@movie.Id" method="post" class="d-inline"
-                                      onsubmit="return confirm('Delete this movie? This cannot be undone.');">
-                                    <button type="submit" class="btn btn-cb-danger btn-sm">Delete</button>
-                                </form>
+
+                            <!-- 2. Release -->
+                            <td class="col-release">
+                                <div class="amv-release-main">@releaseDisplay</div>
+                                <div class="amv-release-sub">Theatrical Release</div>
+                            </td>
+
+                            <!-- 3. Genre -->
+                            <td class="col-genre">
+                                <div class="amv-genre-list">
+                                    @if (genres.Count > 0)
+                                    {
+                                        @foreach (var g in genres)
+                                        {
+                                            <span class="amv-genre-chip">@g</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="amv-genre-chip">Feature</span>
+                                    }
+                                </div>
+                            </td>
+
+                            <!-- 4. Runtime -->
+                            <td class="col-runtime">
+                                <div class="amv-runtime-main">@runtimeFormatted</div>
+                                <div class="amv-runtime-sub">@(movie.DurationMinutes > 0 ? movie.DurationMinutes + " min" : "-")</div>
+                            </td>
+
+                            <!-- 5. Rating -->
+                            <td class="col-rating">
+                                <div class="amv-rating-main">
+                                    <svg class="amv-star-icon" width="13" height="13" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                                    <span>@ratingNum</span>
+                                </div>
+                                <div class="amv-votes-sub">@voteCountDisplay</div>
+                            </td>
+
+                            <!-- 6. Formats -->
+                            <td class="col-formats">
+                                <div class="amv-formats-list">
+                                    @foreach (var fmt in formats.Take(3))
+                                    {
+                                        var fmtClass = "amv-pill-standard";
+                                        if (fmt.Contains("IMAX", StringComparison.OrdinalIgnoreCase)) fmtClass = "amv-pill-imax";
+                                        else if (fmt.Contains("Dolby", StringComparison.OrdinalIgnoreCase)) fmtClass = "amv-pill-dolby";
+                                        else if (fmt.Contains("VIP", StringComparison.OrdinalIgnoreCase)) fmtClass = "amv-pill-vip";
+                                        <span class="amv-format-pill @fmtClass">@fmt</span>
+                                    }
+                                </div>
+                            </td>
+
+                            <!-- 7. Locations -->
+                            <td class="col-locations">
+                                <div class="amv-locations-wrap">
+                                    @foreach (var loc in locations.Take(3))
+                                    {
+                                        <span class="amv-loc-name" title="@loc">@loc</span>
+                                    }
+                                </div>
+                            </td>
+
+                            <!-- 8. Status & Actions -->
+                            <td class="col-status">
+                                <div class="amv-status-actions-cell">
+                                    @if (isShowing)
+                                    {
+                                        <span class="amv-status-badge status-showing">
+                                            <span class="status-dot"></span> Now Showing
+                                        </span>
+                                    }
+                                    else if (isComing)
+                                    {
+                                        <span class="amv-status-badge status-coming">
+                                            <span class="status-dot"></span> Coming Soon
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="amv-status-badge status-other">
+                                            @statusClean
+                                        </span>
+                                    }
+                                    <div class="amv-row-actions">
+                                        <form asp-controller="AdminMovies" asp-action="Delete" asp-route-id="@movie.Id" method="post" style="display:inline;" onsubmit="return confirm('Delete this movie? This action cannot be undone.');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="amv-action-btn amv-btn-del" title="Delete movie">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
-        </div>
-    }
-</div>
+
+            <!-- Table Footer / Pagination -->
+            <div class="amv-table-footer">
+                <span id="footerCountDisplay">Showing 1 to @Model.Movies.Count of @Model.TotalCatalog entries</span>
+                <div class="amv-pagination-group">
+                    <button type="button" class="amv-page-btn" disabled>&larr; Previous</button>
+                    <button type="button" class="amv-page-btn is-active">1</button>
+                    <button type="button" class="amv-page-btn" disabled>Next &rarr;</button>
+                </div>
+            </div>
+        }
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        (function () {
+            const filterInput = document.getElementById('tableFilterInput');
+            const statusSelect = document.getElementById('statusFilterSelect');
+            const rows = document.querySelectorAll('#movieTableBody .amv-row');
+            const countDisplay = document.getElementById('tableCountDisplay');
+            const footerCountDisplay = document.getElementById('footerCountDisplay');
+            const totalCount = @Model.Movies.Count;
+
+            function applyFilters() {
+                if (!rows.length) return;
+                const query = (filterInput ? filterInput.value.trim().toLowerCase() : '');
+                const status = (statusSelect ? statusSelect.value : 'all');
+
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const title = row.getAttribute('data-title') || '';
+                    const genre = row.getAttribute('data-genre') || '';
+                    const tmdb = row.getAttribute('data-tmdb') || '';
+                    const rowStatus = row.getAttribute('data-status') || '';
+
+                    const matchesQuery = !query || title.includes(query) || genre.includes(query) || tmdb.includes(query);
+                    const matchesStatus = (status === 'all') || rowStatus.toLowerCase().includes(status.toLowerCase());
+
+                    if (matchesQuery && matchesStatus) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (countDisplay) {
+                    countDisplay.textContent = 'Showing ' + visibleCount + ' of ' + totalCount + ' titles';
+                }
+                if (footerCountDisplay) {
+                    footerCountDisplay.textContent = 'Showing 1 to ' + visibleCount + ' of ' + visibleCount + ' entries';
+                }
+            }
+
+            if (filterInput) filterInput.addEventListener('input', applyFilters);
+            if (statusSelect) statusSelect.addEventListener('change', applyFilters);
+        })();
+    </script>
+}

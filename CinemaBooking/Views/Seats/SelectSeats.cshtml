@@ -1,0 +1,214 @@
+@model SeatMapViewModel
+@{
+    ViewData["Title"] = "Select Seats";
+    var rows = Model.Seats.GroupBy(s => s.RowLabel).OrderBy(g => g.Key).ToList();
+}
+
+<div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <!-- Header Row -->
+    <div class="mb-8 border-b border-[#242424] pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-xs text-gray-400 mb-2">
+                <a asp-controller="Movies" asp-action="Index" class="hover:text-white transition-colors">MOVIES</a>
+                <span>/</span>
+                <span class="text-gray-300">@Model.MovieTitle</span>
+                <span>/</span>
+                <span class="text-[#e50914] font-semibold">SEAT SELECTION</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-['Plus_Jakarta_Sans']">
+                Select Your Seats
+            </h1>
+            <p class="text-sm text-gray-400 mt-1">
+                @Model.CinemaName &bull; @Model.HallName &bull; @Model.StartTime.ToString("dddd, MMM d @ h:mm tt")
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="px-3 py-1.5 rounded-lg bg-[#1a1a1a] border border-[#333] text-xs text-gray-300 font-medium">
+                Standard: <strong class="text-white">@Model.BasePrice.ToString("0") EGP</strong>
+            </span>
+        </div>
+    </div>
+
+    @if (!Model.Seats.Any())
+    {
+        <div class="bg-[#141414] border border-[#242424] rounded-2xl p-12 text-center max-w-md mx-auto shadow-2xl">
+            <span class="material-symbols-outlined text-5xl text-gray-600 mb-3">chair</span>
+            <h3 class="text-lg font-bold text-white mb-2">No Seats Configured</h3>
+            <p class="text-sm text-gray-400 mb-4">The auditorium layout for this hall has not been set up yet.</p>
+            <a asp-controller="Showtimes" asp-action="Index" class="text-xs text-[#e50914] hover:underline font-semibold">&larr; Return to Showtimes</a>
+        </div>
+    }
+    else
+    {
+        <!-- Auditorium Screen & Seating Map Card -->
+        <div class="bg-[#141414] border border-[#242424] rounded-2xl p-6 sm:p-10 shadow-2xl mb-8 flex flex-col items-center">
+            
+            <!-- Curved Cinema Screen -->
+            <div class="w-full max-w-2xl mb-12 flex flex-col items-center">
+                <div class="w-full h-3 bg-gradient-to-b from-[#e50914] to-transparent rounded-t-[100%] shadow-[0_0_25px_rgba(229,9,20,0.6)] opacity-90"></div>
+                <div class="w-full border-b border-dashed border-[#383838] mt-2 mb-2"></div>
+                <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-gray-500">AUDITORIUM SCREEN</span>
+            </div>
+
+            <!-- Interactive Seating Grid -->
+            <form id="seatsForm" asp-controller="Seats" asp-action="ConfirmSeats" method="post" class="w-full flex flex-col items-center">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ShowtimeId" value="@Model.ShowtimeId" />
+
+                <div class="flex flex-col gap-3.5 mb-10 overflow-x-auto max-w-full pb-4 scrollbar-none">
+                    @foreach (var row in rows)
+                    {
+                        <div class="flex items-center gap-3">
+                            <!-- Row Label Left -->
+                            <span class="w-6 text-center text-xs font-bold text-gray-500 font-mono">@row.Key</span>
+
+                            <!-- Seats in Row -->
+                            <div class="flex items-center gap-2">
+                                @foreach (var seat in row.OrderBy(s => s.ColumnNumber))
+                                {
+                                    var isVip = seat.SeatTypeName.Equals("VIP", StringComparison.OrdinalIgnoreCase);
+                                    var isBooked = seat.IsBooked;
+
+                                    <button type="button"
+                                            class="seat-btn group relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all
+                                            @(isBooked 
+                                                ? "bg-[#1c1c1c] text-gray-600 border border-[#2a2a2a] cursor-not-allowed opacity-40" 
+                                                : isVip 
+                                                    ? "bg-[#1f1a10] text-[#f59e0b] border border-[#f59e0b]/40 hover:border-[#f59e0b] hover:shadow-[0_0_12px_rgba(245,158,11,0.4)] cursor-pointer" 
+                                                    : "bg-[#1f1f1f] text-gray-300 border border-[#333] hover:border-[#e50914] hover:text-white cursor-pointer")"
+                                            data-seat-id="@seat.SeatId"
+                                            data-seat-label="@seat.SeatNumber"
+                                            data-seat-price="@seat.Price"
+                                            data-is-vip="@(isVip ? "true" : "false")"
+                                            disabled="@isBooked"
+                                            title="@seat.SeatNumber (@seat.SeatTypeName) - @seat.Price.ToString("0") EGP">
+                                        <span class="material-symbols-outlined text-[18px] pointer-events-none">chair</span>
+                                        <span class="absolute -bottom-3 text-[9px] opacity-0 group-hover:opacity-100 text-gray-400 pointer-events-none transition-opacity">@seat.SeatNumber</span>
+                                    </button>
+                                }
+                            </div>
+
+                            <!-- Row Label Right -->
+                            <span class="w-6 text-center text-xs font-bold text-gray-500 font-mono">@row.Key</span>
+                        </div>
+                    }
+                </div>
+
+                <!-- Hidden Input Container for Selected Seats -->
+                <div id="selectedSeatsInputs"></div>
+
+                <!-- Seating Legend -->
+                <div class="flex flex-wrap items-center justify-center gap-6 pt-6 border-t border-[#222] w-full text-xs text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded bg-[#1f1f1f] border border-[#333]"></div>
+                        <span>Standard (@Model.BasePrice.ToString("0") EGP)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded bg-[#1f1a10] border border-[#f59e0b]"></div>
+                        <span>VIP Lounge (@((Model.BasePrice * 1.5m).ToString("0")) EGP)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded bg-[#e50914] border border-[#e50914] shadow-[0_0_8px_rgba(229,9,20,0.6)]"></div>
+                        <span class="text-white font-medium">Selected</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded bg-[#1c1c1c] border border-[#2a2a2a] opacity-40"></div>
+                        <span>Booked / Reserved</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sticky Bottom Summary / Checkout Bar -->
+        <div class="sticky bottom-4 z-40 bg-[#171717]/95 backdrop-blur-xl border border-[#2d2d2d] rounded-2xl p-5 sm:p-6 shadow-[0_10px_35px_rgba(0,0,0,0.8)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <div class="text-xs text-gray-400">Selected Seats:</div>
+                <div id="selectedSeatsDisplay" class="text-base font-bold text-white font-mono mt-0.5">
+                    None selected
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+                <div class="text-right">
+                    <div class="text-xs text-gray-400">Total Price:</div>
+                    <div class="text-xl font-extrabold text-[#ff8088] font-['Plus_Jakarta_Sans']">
+                        <span id="totalPriceDisplay">0</span> EGP
+                    </div>
+                </div>
+
+                <button type="submit" form="seatsForm" id="btnContinue" disabled
+                        class="px-6 py-3 rounded-xl bg-[#e50914] hover:bg-[#b20710] disabled:bg-[#2a2a2a] disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-[0_0_20px_rgba(229,9,20,0.4)] disabled:shadow-none transition-all flex items-center gap-2 cursor-pointer">
+                    <span>Confirm &amp; Checkout</span>
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const selectedSeats = new Map();
+            const inputsContainer = document.getElementById('selectedSeatsInputs');
+            const displayEl = document.getElementById('selectedSeatsDisplay');
+            const priceEl = document.getElementById('totalPriceDisplay');
+            const btnContinue = document.getElementById('btnContinue');
+
+            document.querySelectorAll('.seat-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-seat-id');
+                    const label = this.getAttribute('data-seat-label');
+                    const price = parseFloat(this.getAttribute('data-seat-price')) || 0;
+                    const isVip = this.getAttribute('data-is-vip') === 'true';
+
+                    if (selectedSeats.has(id)) {
+                        selectedSeats.delete(id);
+                        this.classList.remove('bg-[#e50914]', 'text-white', 'border-[#e50914]', 'shadow-[0_0_15px_rgba(229,9,20,0.6)]');
+                        if (isVip) {
+                            this.classList.add('bg-[#1f1a10]', 'text-[#f59e0b]', 'border-[#f59e0b]/40');
+                        } else {
+                            this.classList.add('bg-[#1f1f1f]', 'text-gray-300', 'border-[#333]');
+                        }
+                    } else {
+                        selectedSeats.set(id, { label: label, price: price });
+                        this.classList.remove('bg-[#1f1f1f]', 'bg-[#1f1a10]', 'text-[#f59e0b]', 'text-gray-300', 'border-[#333]', 'border-[#f59e0b]/40');
+                        this.classList.add('bg-[#e50914]', 'text-white', 'border-[#e50914]', 'shadow-[0_0_15px_rgba(229,9,20,0.6)]');
+                    }
+
+                    updateState();
+                });
+            });
+
+            function updateState() {
+                inputsContainer.innerHTML = '';
+                let total = 0;
+                const labels = [];
+
+                selectedSeats.forEach((val, id) => {
+                    total += val.price;
+                    labels.push(val.label);
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'SelectedSeatIds';
+                    inp.value = id;
+                    inputsContainer.appendChild(inp);
+                });
+
+                if (labels.length > 0) {
+                    displayEl.textContent = labels.join(', ') + ' (' + labels.length + ' seat' + (labels.length > 1 ? 's' : '') + ')';
+                    displayEl.classList.remove('text-gray-500');
+                    displayEl.classList.add('text-white');
+                    btnContinue.disabled = false;
+                } else {
+                    displayEl.textContent = 'None selected';
+                    displayEl.classList.remove('text-white');
+                    displayEl.classList.add('text-gray-500');
+                    btnContinue.disabled = true;
+                }
+
+                priceEl.textContent = total.toFixed(0);
+            }
+        })();
+    </script>
+}

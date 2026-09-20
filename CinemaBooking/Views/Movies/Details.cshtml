@@ -1,0 +1,82 @@
+@model DataAccessLayer.ViewModel.MovieDetailsViewModel
+@{
+    ViewData["Title"] = Model?.Title ?? "Movie Details";
+}
+
+<div class="flex flex-col w-full px-gutter-mobile md:px-margin py-space-lg">
+    <!-- Back to Movies -->
+    <div class="mb-space-md">
+        <a asp-controller="Movies" asp-action="Index" class="inline-flex items-center gap-space-xs text-secondary hover:text-on-surface font-label-md transition-colors">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Back to All Movies</span>
+        </a>
+    </div>
+
+    <!-- Movie Details Card -->
+    <div class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/20 shadow-2xl p-space-lg md:p-space-xl flex flex-col md:flex-row gap-space-xl">
+        <!-- Movie Poster -->
+        <div class="w-full md:w-80 shrink-0 aspect-[2/3] rounded-xl overflow-hidden shadow-lg bg-surface-container-high">
+            <img class="w-full h-full object-cover" src="@Model?.PosterUrl" alt="@Model?.Title Poster" />
+        </div>
+
+        <!-- Info -->
+        <div class="flex-1 flex flex-col justify-between gap-space-md">
+            <div class="flex flex-col gap-space-sm">
+                <div class="flex items-center gap-space-xs">
+                    <span class="bg-primary-container text-on-primary-container font-label-sm uppercase font-bold px-space-sm py-0.5 rounded shadow-sm">
+                        @Model?.ReleaseStatus
+                    </span>
+                    <span class="bg-surface-container-highest text-on-surface font-label-sm uppercase px-space-sm py-0.5 rounded font-bold">
+                        @Model?.Rating
+                    </span>
+                    <span class="text-secondary text-sm font-label-md">
+                        @Model?.DurationMinutes min • @Model?.Genre
+                    </span>
+                </div>
+
+                <h1 class="font-headline-xl text-3xl md:text-5xl font-bold text-on-surface tracking-tight">
+                    @Model?.Title
+                </h1>
+
+                <p class="font-body-md text-secondary leading-relaxed max-w-3xl mt-2">
+                    @Model?.Description
+                </p>
+            </div>
+
+            <!-- Available Cinemas for this Movie -->
+            <div class="pt-space-md border-t border-outline-variant/20">
+                <h2 class="font-headline-sm text-lg font-bold text-on-surface mb-space-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary-container">theaters</span>
+                    <span>Available Cinemas &amp; Screenings</span>
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+                    @if (Model?.Cinemas != null && Model.Cinemas.Any())
+                    {
+                        foreach (var cinema in Model.Cinemas)
+                        {
+                            <div class="bg-surface-container rounded-lg p-space-md flex items-center justify-between border border-outline-variant/20">
+                                <div>
+                                    <h3 class="font-label-lg font-bold text-on-surface">@cinema.Name</h3>
+                                    <span class="font-body-sm text-secondary">@cinema.City</span>
+                                </div>
+                                <a asp-controller="Showtimes" asp-action="Index" asp-route-movieId="@Model.Id"
+                                   class="px-space-md py-1.5 bg-primary-container hover:bg-inverse-primary text-on-primary-container rounded font-label-sm text-xs font-bold transition-all shadow-sm">
+                                    Showtimes &rarr;
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-span-full">
+                            <p class="text-secondary text-sm">No showtimes scheduled for this movie yet.</p>
+                            <a asp-controller="Showtimes" asp-action="Index" asp-route-movieId="@Model?.Id" class="inline-block mt-2 text-primary hover:underline font-label-sm">
+                                Check Showtimes &rarr;
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -25,6 +25,8 @@ namespace CinemaBooking.Services
             _logger = logger;
         }
 
+        public bool IsConfigured => !string.IsNullOrWhiteSpace(_options.ApiReadAccessToken);
+
         public async Task<TmdbResult<TmdbMovieSearchResponse>> SearchMoviesAsync(string query, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(query))

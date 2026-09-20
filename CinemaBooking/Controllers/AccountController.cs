@@ -174,15 +174,53 @@ namespace CinemaBooking.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
+            var bookings = await _context.Bookings
+                .AsNoTracking()
+                .Where(b => b.UserId == userId)
+                .Include(b => b.Showtime)
+                    .ThenInclude(s => s.Movie)
+                .Include(b => b.Showtime)
+                    .ThenInclude(s => s.Cinema)
+                .Include(b => b.BookingSeats)
+                    .ThenInclude(bs => bs.Seat)
+                .OrderByDescending(b => b.Showtime.Date)
+                    .ThenByDescending(b => b.Showtime.Time)
+                .ToListAsync();
+
             var viewModel = new ProfileViewModel
             {
                 Name = user.Name,
                 Email = user.Email,
                 CreatedAt = user.CreatedAt,
-                IsAdmin = user.IsAdmin
+                IsAdmin = user.IsAdmin,
+                Bookings = bookings
             };
 
             return View(viewModel);
+        }
+
+        // POST: /Account/UpdateProfile
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(string fullName)
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdValue, out var userId))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null && !string.IsNullOrWhiteSpace(fullName))
+            {
+                user.Name = fullName.Trim();
+                await _context.SaveChangesAsync();
+                await SignInUserAsync(user, true);
+                TempData["SuccessMessage"] = "Profile preferences updated successfully.";
+            }
+
+            return RedirectToAction(nameof(Profile));
         }
 
         private async Task SignInUserAsync(AppUser user, bool isPersistent)

@@ -1,8 +1,263 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model List<Movie>
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="flex flex-col w-full">
+
+    <!-- ════════════════════════════════════════════
+         HERO SECTION
+    ════════════════════════════════════════════ -->
+    <section class="relative w-full min-h-[92vh] flex flex-col items-center justify-center overflow-hidden">
+
+        <!-- Ambient Glow Orbs -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute top-[-10%] left-[15%] w-[600px] h-[600px] bg-primary-container/15 rounded-full blur-[140px]"></div>
+            <div class="absolute top-[20%] right-[10%] w-[400px] h-[400px] bg-tertiary/8 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-[-5%] left-[40%] w-[500px] h-[300px] bg-primary-container/10 rounded-full blur-[100px]"></div>
+        </div>
+
+        <!-- Hero Background Image with Scrim -->
+        <div class="absolute inset-0 z-0">
+            <img class="w-full h-full object-cover object-top opacity-30"
+                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQEUioXS9YiGUteZkknbx8RVJeeuWQDKxrhyHSusFsnHvB_duO9gFxdP7Mdods-gk8aVsAbW3ivUJt76tKcVfx7bomR7vQZMi7tguYehRKu9vHM5pgAaE7HaNoZ3pw59O678GSLlvBHoK3uxruJbHIzXqh8RS-4oE3ntPRn9y7B2-BFcCNM3WSbAbVJi4wTRTZvwpSUSCgiLphG9dFfCC3jvPLtZFImbl7RZw1QNaYz2VYt_NGUwoA5g"
+                 alt="" />
+            <div class="absolute inset-0 bg-gradient-to-b from-surface-container-lowest/60 via-surface-container-lowest/80 to-surface-container-lowest"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 flex flex-col items-center text-center gap-space-lg px-gutter-mobile md:px-margin max-w-5xl mx-auto">
+
+            <!-- Eyebrow Tag -->
+            <div class="flex items-center gap-space-xs animate-pulse">
+                <span class="inline-block w-2 h-2 rounded-full bg-primary-container shadow-[0_0_10px_rgba(229,9,20,0.9)]"></span>
+                <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-container">Now Screening Across Egypt</span>
+            </div>
+
+            <!-- Main Headline -->
+            <h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-on-surface tracking-tight">
+                Cinema Like<br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container drop-shadow-[0_0_40px_rgba(229,9,20,0.6)]">
+                    Never Before
+                </span>
+            </h1>
+
+            <!-- Subheadline -->
+            <p class="font-body-lg text-body-lg text-secondary max-w-2xl leading-relaxed">
+                IMAX Laser, Dolby Atmos, and Zero-Gravity Recliners — StarLight Cinemas brings the world's most immersive auditorium experience to premiere locations across Cairo, Giza, and Alexandria.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row items-center gap-space-md w-full sm:w-auto">
+                <a asp-controller="Movies" asp-action="Index"
+                   class="w-full sm:w-auto px-space-xl py-4 bg-primary-container hover:bg-[#b20710] text-on-primary-container font-label-lg text-label-lg rounded-xl shadow-[0_0_28px_rgba(229,9,20,0.55)] hover:shadow-[0_0_40px_rgba(229,9,20,0.75)] transition-all flex items-center justify-center gap-space-sm active:scale-[0.98]">
+                    <span class="material-symbols-outlined text-[20px]">movie</span>
+                    <span>Explore Movies</span>
+                </a>
+                <a asp-controller="Cinemas" asp-action="Index"
+                   class="w-full sm:w-auto px-space-xl py-4 bg-surface-container hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg rounded-xl border border-surface-variant/60 hover:border-secondary/40 transition-all flex items-center justify-center gap-space-sm">
+                    <span class="material-symbols-outlined text-[20px]">theaters</span>
+                    <span>Find a Cinema</span>
+                </a>
+            </div>
+
+            <!-- Quick Stats Strip -->
+            <div class="flex flex-wrap items-center justify-center gap-space-lg mt-space-sm">
+                <div class="flex items-center gap-space-xs">
+                    <span class="material-symbols-outlined text-primary-container text-[18px]">theaters</span>
+                    <span class="font-label-md text-label-md text-secondary">3 Flagship Locations</span>
+                </div>
+                <span class="text-surface-variant/60 font-body-sm">•</span>
+                <div class="flex items-center gap-space-xs">
+                    <span class="material-symbols-outlined text-tertiary text-[18px]">movie</span>
+                    <span class="font-label-md text-label-md text-secondary">20+ Titles Screening</span>
+                </div>
+                <span class="text-surface-variant/60 font-body-sm">•</span>
+                <div class="flex items-center gap-space-xs">
+                    <span class="material-symbols-outlined text-primary-container text-[18px]">star</span>
+                    <span class="font-label-md text-label-md text-secondary">4.9 / 5 Guest Rating</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-50">
+            <span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Scroll</span>
+            <span class="material-symbols-outlined text-secondary text-[20px] animate-bounce">keyboard_arrow_down</span>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         FORMATS STRIP
+    ════════════════════════════════════════════ -->
+    <section class="w-full px-gutter-mobile md:px-margin py-space-lg bg-surface-container-low border-y border-surface-variant/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-space-lg">
+            <span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary shrink-0">Auditorium Technology</span>
+            <div class="flex flex-wrap items-center justify-center md:justify-end gap-space-md">
+                <div class="flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-primary-container text-[22px]">videocam</span>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-surface">IMAX Laser</div>
+                        <div class="font-body-sm text-body-sm text-secondary">15,000-lumen projection</div>
+                    </div>
+                </div>
+                <span class="text-surface-variant/40 hidden md:block">|</span>
+                <div class="flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-tertiary text-[22px]">surround_sound</span>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-surface">Dolby Atmos</div>
+                        <div class="font-body-sm text-body-sm text-secondary">3D spatial audio</div>
+                    </div>
+                </div>
+                <span class="text-surface-variant/40 hidden md:block">|</span>
+                <div class="flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-primary text-[22px]">airline_seat_recline_extra</span>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-surface">Zero-Gravity Seats</div>
+                        <div class="font-body-sm text-body-sm text-secondary">Full motorized recline</div>
+                    </div>
+                </div>
+                <span class="text-surface-variant/40 hidden md:block">|</span>
+                <div class="flex items-center gap-space-sm">
+                    <span class="material-symbols-outlined text-secondary text-[22px]">wine_bar</span>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-surface">VIP Dine-In Lounge</div>
+                        <div class="font-body-sm text-body-sm text-secondary">In-seat dining service</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         NOW SHOWING TEASER
+    ════════════════════════════════════════════ -->
+    <section class="w-full px-gutter-mobile md:px-margin py-space-xl">
+        <div class="flex flex-col gap-space-xl">
+
+            <!-- Section Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md border-b border-surface-variant/30 pb-space-lg">
+                <div class="flex flex-col gap-space-xs">
+                    <div class="flex items-center gap-space-xs">
+                        <span class="inline-block w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                        <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-container">Auditorium Schedule</span>
+                    </div>
+                    <h2 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Now Screening</h2>
+                    <p class="font-body-md text-body-md text-secondary max-w-lg">
+                        Book your seats for the latest blockbusters across all StarLight flagship locations.
+                    </p>
+                </div>
+                <a asp-controller="Movies" asp-action="Index"
+                   class="self-start md:self-end px-space-lg py-3 bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md rounded-lg border border-surface-variant/60 transition-colors flex items-center gap-space-xs shrink-0">
+                    <span>View All Movies</span>
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </a>
+            </div>
+
+            <!-- Feature Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var movie in Model)
+                    {
+                        var poster = !string.IsNullOrWhiteSpace(movie.PosterUrl) 
+                            ? movie.PosterUrl 
+                            : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80";
+                        var rating = !string.IsNullOrWhiteSpace(movie.Rating) ? movie.Rating : (movie.VoteAverage > 0 ? movie.VoteAverage.ToString("0.0") : "8.5");
+                        var genres = !string.IsNullOrWhiteSpace(movie.Genre) ? movie.Genre.Split(',', StringSplitOptions.TrimEntries) : new[] { "Cinema" };
+                        var formatTag = !string.IsNullOrWhiteSpace(movie.Formats) ? movie.Formats.Split(',').FirstOrDefault()?.Trim() : "IMAX Laser";
+
+                        <div class="group bg-surface-container border border-surface-variant/70 hover:border-primary-container/50 rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(0,0,0,0.8)]">
+                            <div class="relative aspect-[4/3] overflow-hidden bg-surface-container-high">
+                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                                     src="@poster"
+                                     alt="@movie.Title" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-black/30"></div>
+                                <div class="absolute top-2 right-2 flex items-center gap-1 bg-surface-container-lowest/90 backdrop-blur-md px-1.5 py-0.5 rounded border border-surface-variant font-label-sm text-label-sm font-bold">
+                                    <span class="material-symbols-outlined text-tertiary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    @rating
+                                </div>
+                                <span class="absolute top-2 left-2 bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm uppercase px-2 py-0.5 rounded border border-surface-variant tracking-wider font-bold">@formatTag</span>
+                            </div>
+                            <div class="p-space-md flex flex-col gap-space-sm flex-1">
+                                <div class="flex items-center gap-1 text-secondary font-label-sm text-label-sm">
+                                    <span>@(movie.ReleaseDate ?? "2025")</span>
+                                    <span class="text-surface-variant">•</span>
+                                    <span>@(movie.DurationMinutes > 0 ? $"{movie.DurationMinutes}m" : "2h 10m")</span>
+                                    <span class="text-surface-variant">•</span>
+                                    <span class="text-on-surface-variant font-semibold">@(movie.Certification ?? "PG-13")</span>
+                                </div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight group-hover:text-primary-container transition-colors font-bold">
+                                    <a asp-controller="Movies" asp-action="Details" asp-route-id="@movie.Id" class="hover:underline">
+                                        @movie.Title
+                                    </a>
+                                </h3>
+                                <p class="font-body-sm text-body-sm text-secondary/90 line-clamp-2">
+                                    @(string.IsNullOrWhiteSpace(movie.Description) ? "Experience this cinematic masterpiece in premium auditorium projection at StarLight Cinemas." : movie.Description)
+                                </p>
+                                <div class="flex flex-wrap gap-1 mt-auto pt-1">
+                                    @foreach (var g in genres.Take(3))
+                                    {
+                                        <span class="bg-surface-container-high text-secondary font-label-sm text-label-sm px-1.5 py-0.5 rounded">@g</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="p-space-sm pt-0">
+                                <a asp-controller="Movies" asp-action="Details" asp-route-id="@movie.Id"
+                                   class="w-full bg-primary-container hover:bg-[#b20710] text-on-primary-container font-label-md text-label-md py-2 rounded-lg flex items-center justify-center gap-1.5 shadow-[0_0_14px_rgba(229,9,20,0.3)] hover:shadow-[0_0_20px_rgba(229,9,20,0.55)] transition-all active:scale-[0.98]">
+                                    <span class="material-symbols-outlined text-[16px]">confirmation_number</span>
+                                    <span>Book Now</span>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-span-3 py-12 text-center text-secondary">
+                        <p>No movies currently scheduled. Check back soon!</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════
+         EXPERIENCE CALLOUT
+    ════════════════════════════════════════════ -->
+    <section class="w-full px-gutter-mobile md:px-margin pb-space-xl">
+        <div class="relative w-full rounded-2xl overflow-hidden bg-surface-container-low shadow-2xl">
+            <!-- Background Glow -->
+            <div class="absolute inset-0 bg-gradient-to-r from-primary-container/20 via-transparent to-surface-container-lowest pointer-events-none"></div>
+            <div class="absolute -left-20 top-1/2 -translate-y-1/2 w-72 h-72 bg-primary-container/25 blur-[90px] pointer-events-none rounded-full"></div>
+
+            <div class="relative z-10 px-space-lg md:px-space-xl py-space-xl flex flex-col md:flex-row items-center justify-between gap-space-lg">
+                <div class="flex flex-col gap-space-xs text-center md:text-left max-w-2xl">
+                    <div class="flex items-center justify-center md:justify-start gap-space-xs">
+                        <span class="material-symbols-outlined text-primary-container text-[20px]">verified</span>
+                        <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-container font-bold">Uncompromising Presentation</span>
+                    </div>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+                        Ready for the Ultimate Auditorium Experience?
+                    </h2>
+                    <p class="font-body-md text-body-md text-secondary">
+                        Browse the full schedule, lock in prime seats, and experience blockbusters the way they were meant to be seen — across 3 StarLight flagship locations.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-space-sm w-full md:w-auto shrink-0">
+                    <a class="w-full sm:w-auto px-space-xl py-3.5 bg-primary-container hover:bg-[#b20710] text-on-primary-container font-label-lg text-label-lg rounded-lg shadow-[0_0_20px_rgba(229,9,20,0.5)] transition-all text-center flex items-center justify-center gap-2"
+                       asp-controller="Movies" asp-action="Index">
+                        <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
+                        Book Your Seats
+                    </a>
+                    <a class="w-full sm:w-auto px-space-lg py-3.5 bg-surface-container hover:bg-surface-bright text-on-surface font-label-lg text-label-lg rounded-lg transition-colors text-center flex items-center justify-center gap-2"
+                       asp-controller="Cinemas" asp-action="Index">
+                        <span class="material-symbols-outlined text-[18px]">location_on</span>
+                        Find a Cinema
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </div>

@@ -1,4 +1,4 @@
-@model CinemaFormViewModel
+﻿@model CinemaFormViewModel
 @{
     ViewData["Title"] = "Edit Cinema";
 }
@@ -11,7 +11,7 @@
     </div>
 
     <div class="cb-card">
-        <form asp-controller="Cinemas" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+        <form asp-controller="AdminCinemas" asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
             <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="ModelOnly" class="mb-3"></div>
 
@@ -48,7 +48,7 @@
             </div>
 
             <button type="submit" class="btn btn-cb-primary">Save Changes</button>
-            <a class="btn btn-cb-secondary" asp-controller="Cinemas" asp-action="Index">Cancel</a>
+            <a class="btn btn-cb-secondary" asp-controller="AdminCinemas" asp-action="Index">Cancel</a>
         </form>
     </div>
 </div>
