@@ -1,0 +1,148 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout & Confirmation";
+    var posterUrl = ViewData["PosterUrl"] as string;
+    var seatLabels = ViewData["SeatLabels"] as string ?? "";
+    var pricePerSeat = ViewData["PricePerSeat"] as decimal? ?? 0m;
+}
+
+<div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <!-- Breadcrumb & Header -->
+    <div class="mb-8 border-b border-[#242424] pb-6">
+        <div class="flex items-center gap-2 text-xs text-gray-400 mb-2">
+            <a asp-controller="Movies" asp-action="Index" class="hover:text-white transition-colors">MOVIES</a>
+            <span>/</span>
+            <a asp-controller="Seats" asp-action="SelectSeats" asp-route-showtimeId="@Model.ShowtimeId" class="hover:text-white transition-colors">SEATS</a>
+            <span>/</span>
+            <span class="text-[#e50914] font-semibold">CHECKOUT</span>
+        </div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight font-['Plus_Jakarta_Sans']">Order Review &amp; Guest Details</h1>
+        <p class="text-sm text-gray-400 mt-1">Review your screening details and enter contact information for e-ticket delivery.</p>
+    </div>
+
+    @if (Model.ShowtimeId == 0 || Model.SelectedSeatIds == null || !Model.SelectedSeatIds.Any())
+    {
+        <div class="bg-[#141414] border border-[#242424] rounded-2xl p-12 text-center max-w-md mx-auto shadow-2xl">
+            <span class="material-symbols-outlined text-5xl text-gray-600 mb-3">shopping_cart</span>
+            <h3 class="text-lg font-bold text-white mb-2">No Active Booking Session</h3>
+            <p class="text-sm text-gray-400 mb-4">Please select a movie and seats to initiate checkout.</p>
+            <a asp-controller="Movies" asp-action="Index" class="inline-flex items-center gap-2 bg-[#e50914] hover:bg-[#b20710] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all">
+                Browse Movies
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+            <!-- Order Summary Card -->
+            <div class="md:col-span-5 flex flex-col gap-6">
+                <div class="bg-[#141414] border border-[#242424] rounded-2xl p-6 shadow-2xl">
+                    <div class="flex gap-4 items-start mb-6">
+                        @if (!string.IsNullOrWhiteSpace(posterUrl))
+                        {
+                            <img src="@posterUrl" alt="@Model.MovieTitle" class="w-20 h-28 object-cover rounded-xl border border-[#333] shadow-md shrink-0" />
+                        }
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#ff8088] bg-[#e50914]/10 border border-[#e50914]/30 px-2 py-0.5 rounded">RESERVED TICKET</span>
+                            <h3 class="text-lg font-bold text-white mt-1 leading-tight font-['Plus_Jakarta_Sans']">@Model.MovieTitle</h3>
+                            <p class="text-xs text-gray-400 mt-1">@Model.CinemaName</p>
+                            <p class="text-xs text-gray-400">@Model.HallName</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 text-xs border-t border-[#222] pt-4">
+                        <div class="flex justify-between text-gray-400">
+                            <span>Screening Time</span>
+                            <span class="text-white font-medium">@Model.Showtime</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Auditorium Format</span>
+                            <span class="text-white font-medium">Laser 4K Cinema</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-400">
+                            <span>Seats Selected (@Model.SelectedSeatIds.Count)</span>
+                            <span class="font-bold text-[#f59e0b] font-mono">@seatLabels</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Base Price / Seat</span>
+                            <span class="text-white font-medium">@pricePerSeat.ToString("0.00") EGP</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#242424] mt-6 pt-4 flex justify-between items-baseline">
+                        <span class="text-sm font-semibold text-gray-300">Total Amount</span>
+                        <div class="text-right">
+                            <span class="text-2xl font-extrabold text-[#ff8088] font-['Plus_Jakarta_Sans']">
+                                @Model.TotalAmount.ToString("0.00")
+                            </span>
+                            <span class="text-xs text-gray-400 font-medium ml-1">EGP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#141414] border border-[#242424] rounded-2xl p-4 flex items-center gap-3 text-xs text-gray-400">
+                    <span class="material-symbols-outlined text-[#10b989] text-[20px] shrink-0">verified_user</span>
+                    <span>100% Guaranteed Reserved Seating. Instant digital pass issued upon payment.</span>
+                </div>
+            </div>
+
+            <!-- Customer Details Form -->
+            <div class="md:col-span-7">
+                <div class="bg-[#141414] border border-[#242424] rounded-2xl p-6 sm:p-8 shadow-2xl">
+                    <h3 class="text-lg font-bold text-white mb-2 font-['Plus_Jakarta_Sans']">Contact &amp; Delivery Information</h3>
+                    <p class="text-xs text-gray-400 mb-6">Your booking confirmation and digital QR tickets will be delivered instantly to this email.</p>
+
+                    <form asp-controller="Booking" asp-action="Checkout" method="post" class="space-y-5">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"></div>
+
+                        <input type="hidden" asp-for="ShowtimeId" />
+                        <input type="hidden" asp-for="TotalAmount" />
+                        @foreach (var seatId in Model.SelectedSeatIds)
+                        {
+                            <input type="hidden" name="SelectedSeatIds" value="@seatId" />
+                        }
+
+                        <div>
+                            <label asp-for="CustomerName" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">
+                                Full Name <span class="text-[#e50914]">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-3 text-gray-500 text-[18px]">person</span>
+                                <input asp-for="CustomerName" required
+                                       placeholder="e.g. John Doe"
+                                       class="w-full bg-[#1c1c1c] border border-[#333] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e50914] focus:ring-1 focus:ring-[#e50914] transition-all" />
+                            </div>
+                            <span asp-validation-for="CustomerName" class="text-xs text-red-400 mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="CustomerEmail" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">
+                                Email Address <span class="text-[#e50914]">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-3 text-gray-500 text-[18px]">mail</span>
+                                <input asp-for="CustomerEmail" type="email" required
+                                       placeholder="e.g. john@example.com"
+                                       class="w-full bg-[#1c1c1c] border border-[#333] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e50914] focus:ring-1 focus:ring-[#e50914] transition-all" />
+                            </div>
+                            <span asp-validation-for="CustomerEmail" class="text-xs text-red-400 mt-1 block"></span>
+                        </div>
+
+                        <div class="pt-4 border-t border-[#222]">
+                            <button type="submit"
+                                    class="w-full bg-[#e50914] hover:bg-[#b20710] text-white font-semibold text-sm py-3.5 px-6 rounded-xl shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+                                <span>Proceed to Payment</span>
+                                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
