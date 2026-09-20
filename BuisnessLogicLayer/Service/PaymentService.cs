@@ -1,4 +1,4 @@
-﻿using CinemaBooking.Data;
+using CinemaBooking.Data;
 using CinemaBooking.Models;
 
 namespace BuisnessLogicLayer.Services
@@ -17,13 +17,31 @@ namespace BuisnessLogicLayer.Services
             decimal amount,
             string paymentMethod)
         {
+            var method = string.IsNullOrWhiteSpace(paymentMethod) ? "Card" : paymentMethod;
+            var isCash = method.Equals("Cash", StringComparison.OrdinalIgnoreCase);
+            var status = isCash ? "Pending (Pay at Box Office)" : "Paid";
+
+            var existingPayment = _context.Payments.FirstOrDefault(p => p.BookingId == bookingId);
+            if (existingPayment != null)
+            {
+                if (amount > 0)
+                {
+                    existingPayment.Amount = amount;
+                }
+                existingPayment.Method = method;
+                existingPayment.Status = status;
+                existingPayment.PaidAt = DateTime.Now;
+                _context.SaveChanges();
+                return existingPayment;
+            }
+
             var payment = new Payment
             {
                 BookingId = bookingId,
                 Amount = amount,
-                Method = paymentMethod,
-                Status = "Paid",
-                TransactionReference = Guid.NewGuid().ToString("N"),
+                Method = method,
+                Status = status,
+                TransactionReference = Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper(),
                 PaidAt = DateTime.Now
             };
 

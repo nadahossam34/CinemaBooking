@@ -151,15 +151,30 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Certification")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Director")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DurationMinutes")
                         .HasColumnType("int");
 
+                    b.Property<string>("Formats")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Genre")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Locations")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalTitle")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PosterUrl")
@@ -168,6 +183,9 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("Rating")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReleaseDate")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReleaseStatus")
@@ -184,6 +202,12 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("TrailerUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("VoteAverage")
+                        .HasColumnType("float");
+
+                    b.Property<int>("VoteCount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

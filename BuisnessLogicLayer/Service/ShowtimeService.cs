@@ -1,4 +1,4 @@
-﻿using CinemaBooking.Data;
+using CinemaBooking.Data;
 using CinemaBooking.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,13 +13,63 @@ namespace BuisnessLogicLayer.Service
             _context = context;
         }
 
-        public async Task<IEnumerable<Showtime>> GetShowtimesByMovieIdAsync(int movieId)
+        public async Task<IEnumerable<Showtime>> GetAllShowtimesAsync()
         {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var upcoming = await _context.Showtimes
+                .Include(s => s.Movie)
+                .Include(s => s.Cinema)
+                .Include(s => s.Hall)
+                    .ThenInclude(h => h.Cinema)
+                .Where(s => s.Date >= today)
+                .OrderBy(s => s.Date)
+                .ThenBy(s => s.Time)
+                .ToListAsync();
+
+            if (upcoming.Any())
+            {
+                return upcoming;
+            }
+
+            // Fallback: if no upcoming showtimes scheduled, return all recent showtimes
             return await _context.Showtimes
                 .Include(s => s.Movie)
+                .Include(s => s.Cinema)
                 .Include(s => s.Hall)
-                .ThenInclude(h => h.Cinema)
+                    .ThenInclude(h => h.Cinema)
+                .OrderByDescending(s => s.Date)
+                .ThenBy(s => s.Time)
+                .Take(50)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Showtime>> GetShowtimesByMovieIdAsync(int movieId)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var upcoming = await _context.Showtimes
+                .Include(s => s.Movie)
+                .Include(s => s.Cinema)
+                .Include(s => s.Hall)
+                    .ThenInclude(h => h.Cinema)
+                .Where(s => s.MovieId == movieId && s.Date >= today)
+                .OrderBy(s => s.Date)
+                .ThenBy(s => s.Time)
+                .ToListAsync();
+
+            if (upcoming.Any())
+            {
+                return upcoming;
+            }
+
+            // Fallback to any showtimes for this movie
+            return await _context.Showtimes
+                .Include(s => s.Movie)
+                .Include(s => s.Cinema)
+                .Include(s => s.Hall)
+                    .ThenInclude(h => h.Cinema)
                 .Where(s => s.MovieId == movieId)
+                .OrderBy(s => s.Date)
+                .ThenBy(s => s.Time)
                 .ToListAsync();
         }
 
@@ -27,8 +77,9 @@ namespace BuisnessLogicLayer.Service
         {
             return await _context.Showtimes
                 .Include(s => s.Movie)
+                .Include(s => s.Cinema)
                 .Include(s => s.Hall)
-                .ThenInclude(h => h.Cinema)
+                    .ThenInclude(h => h.Cinema)
                 .FirstOrDefaultAsync(s => s.Id == showtimeId);
         }
 

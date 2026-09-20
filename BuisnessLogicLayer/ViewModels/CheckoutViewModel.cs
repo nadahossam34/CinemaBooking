@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace BuisnessLogicLayer.ViewModels
 {
@@ -6,19 +7,22 @@ namespace BuisnessLogicLayer.ViewModels
     {
         public int ShowtimeId { get; set; }
 
-        public string MovieTitle { get; set; }
+        public string? MovieTitle { get; set; }
 
-        public string CinemaName { get; set; }
+        public string? CinemaName { get; set; }
 
-        public string HallName { get; set; }
+        public string? HallName { get; set; }
 
-        public string Showtime { get; set; }
+        public string? Showtime { get; set; }
 
         public List<int> SelectedSeatIds { get; set; } = new List<int>();
 
-        public string CustomerName { get; set; }
+        [Required(ErrorMessage = "Full Name is required.")]
+        public string CustomerName { get; set; } = string.Empty;
 
-        public string CustomerEmail { get; set; }
+        [Required(ErrorMessage = "Email Address is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        public string CustomerEmail { get; set; } = string.Empty;
 
         public decimal TotalAmount { get; set; }
     }

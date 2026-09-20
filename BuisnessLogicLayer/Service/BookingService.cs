@@ -17,7 +17,8 @@ namespace BuisnessLogicLayer.Services
             int showtimeId,
             List<int> seatIds,
             string customerName,
-            string customerEmail)
+            string customerEmail,
+            int? userId = null)
         {
             var showtime = _context.Showtimes.Find(showtimeId);
 
@@ -26,6 +27,7 @@ namespace BuisnessLogicLayer.Services
 
             var booking = new Booking
             {
+                UserId = userId,
                 ShowtimeId = showtimeId,
                 CustomerName = customerName,
                 CustomerEmail = customerEmail,

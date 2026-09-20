@@ -81,7 +81,7 @@ namespace BuisnessLogicLayer.Service
                 Address = nearest.Cinema.Address,
                 Latitude = nearest.Cinema.Latitude,
                 Longitude = nearest.Cinema.Longitude,
-                DistanceKm = nearest.Distance,
+                DistanceKm = Math.Round(nearest.Distance, 1),
                 UserLatitude = userLatitude,
                 UserLongitude = userLongitude
             };
