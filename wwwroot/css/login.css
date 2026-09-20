@@ -1,0 +1,716 @@
+/* =========================================================
+   StarLight Cinema – Auth Pages (Login & Register)
+   Shared stylesheet for login and registration pages.
+   ========================================================= */
+
+/* ---------- Reset / Base ---------- */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --sl-bg: #0a0a0a;
+    --sl-bg-header: #110a0b;
+    --sl-card-bg: #151515;
+    --sl-card-border: #2a2a2a;
+    --sl-input-bg: #111111;
+    --sl-input-border: #2a2a2a;
+    --sl-red: #e63232;
+    --sl-red-hover: #cc2828;
+    --sl-red-glow: rgba(230, 50, 50, 0.15);
+    --sl-text: #f0f0f0;
+    --sl-text-muted: #777777;
+    --sl-text-dim: #555555;
+    --sl-text-faint: #3a3a3a;
+    --sl-gold: #c9a84c;
+    --sl-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html,
+body {
+    height: 100%;
+    font-family: var(--sl-font);
+    background-color: var(--sl-bg);
+    color: var(--sl-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Subtle dark red/burgundy gradient at top */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 260px;
+    background: linear-gradient(180deg, rgba(50, 8, 8, 0.6) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* ---------- Header ---------- */
+.sl-header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+}
+
+.sl-logo {
+    font-family: var(--sl-font);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--sl-text);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.sl-back-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--sl-red);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.2s;
+}
+
+.sl-back-link:hover {
+    color: var(--sl-red);
+    opacity: 0.8;
+}
+
+.sl-back-link svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* ---------- Main ---------- */
+.sl-main {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px 40px;
+}
+
+/* ---------- Theatrical Decoration ---------- */
+.sl-theatrical {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.sl-theatrical-block {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background-color: var(--sl-text-faint);
+    opacity: 0.5;
+}
+
+.sl-theatrical-text {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--sl-text-dim);
+}
+
+.sl-theatrical-star {
+    color: var(--sl-gold);
+}
+
+/* ---------- Login Card ---------- */
+.sl-card {
+    width: 100%;
+    max-width: 420px;
+    background-color: var(--sl-card-bg);
+    border: 1px solid var(--sl-card-border);
+    border-radius: 14px;
+    padding: 32px 28px 28px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Icon badge at top */
+.sl-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background-color: #1a1010;
+    border: 1px solid #2a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.sl-card-icon svg {
+    width: 20px;
+    height: 20px;
+    color: var(--sl-red);
+}
+
+/* Brand line */
+.sl-brand-line {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--sl-text-muted);
+}
+
+.sl-brand-line .sl-brand-starlight {
+    color: var(--sl-text);
+}
+
+/* Heading */
+.sl-card-heading {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--sl-text);
+    margin-bottom: 8px;
+}
+
+.sl-card-subtext {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--sl-text-muted);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ---------- Form ---------- */
+.sl-form-group {
+    margin-bottom: 18px;
+}
+
+.sl-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+}
+
+.sl-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sl-text-muted);
+    letter-spacing: 0.3px;
+}
+
+.sl-label-hint {
+    font-size: 10px;
+    color: var(--sl-text-dim);
+    font-weight: 400;
+}
+
+/* Input wrapper with icon */
+.sl-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sl-input-icon {
+    position: absolute;
+    left: 14px;
+    width: 16px;
+    height: 16px;
+    color: var(--sl-text-dim);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.sl-input {
+    width: 100%;
+    background-color: var(--sl-input-bg);
+    border: 1px solid var(--sl-input-border);
+    border-radius: 10px;
+    padding: 11px 14px 11px 40px;
+    font-size: 13px;
+    font-family: var(--sl-font);
+    color: var(--sl-text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sl-input::placeholder {
+    color: #4a4a4a;
+    font-size: 13px;
+}
+
+.sl-input:focus {
+    border-color: var(--sl-red);
+    box-shadow: 0 0 0 2px var(--sl-red-glow);
+}
+
+.sl-input-password {
+    padding-right: 42px;
+}
+
+.sl-eye-toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sl-text-dim);
+    transition: color 0.2s;
+    z-index: 2;
+}
+
+.sl-eye-toggle:hover {
+    color: var(--sl-text-muted);
+}
+
+.sl-eye-toggle svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Remember me */
+.sl-remember-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+}
+
+.sl-checkbox {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--sl-red);
+    cursor: pointer;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.sl-remember-label {
+    font-size: 12.5px;
+    color: var(--sl-text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Sign In button */
+.sl-btn-signin {
+    width: 100%;
+    padding: 13px 20px;
+    background-color: var(--sl-red);
+    color: #fff;
+    font-family: var(--sl-font);
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    letter-spacing: 0.3px;
+}
+
+.sl-btn-signin:hover {
+    background-color: var(--sl-red-hover);
+}
+
+.sl-btn-signin:active {
+    transform: scale(0.99);
+}
+
+/* OR divider */
+.sl-divider {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--sl-text-dim);
+    margin: 18px 0;
+    letter-spacing: 1px;
+}
+
+/* Register prompt */
+.sl-register-prompt {
+    text-align: center;
+    font-size: 13px;
+    color: var(--sl-text-muted);
+}
+
+.sl-register-prompt a {
+    color: var(--sl-red);
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.sl-register-prompt a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* ---------- Feature Indicators ---------- */
+.sl-features {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+.sl-feature {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sl-feature svg {
+    width: 12px;
+    height: 12px;
+    color: var(--sl-text-dim);
+    flex-shrink: 0;
+}
+
+.sl-feature-text {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sl-text-dim);
+}
+
+/* ---------- Footer ---------- */
+.sl-footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 24px 16px;
+    font-size: 11px;
+    color: var(--sl-text-dim);
+    letter-spacing: 0.3px;
+}
+
+/* ---------- Validation ---------- */
+.sl-validation {
+    font-size: 12px;
+    color: #ff6b6b;
+    margin-top: 5px;
+}
+
+.sl-validation-summary {
+    background-color: rgba(230, 50, 50, 0.08);
+    border: 1px solid rgba(230, 50, 50, 0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+    font-size: 12.5px;
+    color: #ff8a8a;
+}
+
+.sl-validation-summary ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ---------- Responsiveness ---------- */
+@media (max-width: 480px) {
+    .sl-header {
+        padding: 14px 16px;
+    }
+
+    .sl-card {
+        padding: 24px 20px 22px;
+        border-radius: 12px;
+    }
+
+    .sl-card-heading {
+        font-size: 20px;
+    }
+
+    .sl-features {
+        gap: 16px;
+    }
+
+    .sl-feature-text {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+
+    .sl-theatrical {
+        margin-bottom: 20px;
+    }
+
+    .sl-theatrical-text {
+        font-size: 7.5px;
+        letter-spacing: 2.5px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .sl-card {
+        max-width: 400px;
+    }
+}
+
+/* =========================================================
+   Register-Page-Specific Styles
+   ========================================================= */
+
+/* Brand header with icon + text inline */
+.sl-brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.sl-brand-header-icon {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.sl-brand-header-icon span {
+    display: block;
+    width: 4px;
+    height: 12px;
+    background-color: var(--sl-red);
+    border-radius: 1px;
+}
+
+.sl-brand-header-icon span:nth-child(2) {
+    height: 16px;
+}
+
+.sl-brand-header-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--sl-text);
+}
+
+/* Label hint variants */
+.sl-label-hint-required {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sl-text-dim);
+}
+
+.sl-label-hint-strong {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #4caf50;
+}
+
+/* Password strength bar */
+.sl-strength-bar-track {
+    width: 100%;
+    height: 3px;
+    background-color: #1e1e1e;
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.sl-strength-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+/* Password hint text */
+.sl-password-hint {
+    font-size: 11px;
+    color: #6a8fa8;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+/* Confirm password with check icon */
+.sl-input-confirm {
+    padding-right: 68px;
+}
+
+.sl-confirm-check {
+    position: absolute;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4caf50;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.sl-confirm-check.visible {
+    opacity: 1;
+}
+
+.sl-confirm-check svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Terms checkbox row */
+.sl-terms-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.sl-terms-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--sl-red);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.sl-terms-text {
+    font-size: 11.5px;
+    color: var(--sl-text-muted);
+    line-height: 1.55;
+}
+
+.sl-terms-text a {
+    color: var(--sl-text);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--sl-text-dim);
+    text-underline-offset: 2px;
+}
+
+.sl-terms-text a:hover {
+    color: var(--sl-red);
+    text-decoration-color: var(--sl-red);
+}
+
+/* Benefits row (inside card, below button) */
+.sl-benefits {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.sl-benefit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--sl-text-muted);
+}
+
+.sl-benefit-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sl-benefit-dot--green {
+    background-color: #4caf50;
+}
+
+.sl-benefit-dot--gold {
+    background-color: var(--sl-gold);
+}
+
+.sl-benefit-dot--blue {
+    background-color: #5b9bd5;
+}
+
+/* Separator dot between benefits */
+.sl-benefit-sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: var(--sl-text-faint);
+}
+
+/* Login prompt (bottom of register card) */
+.sl-login-prompt {
+    text-align: center;
+    font-size: 13px;
+    color: var(--sl-text-muted);
+    margin-top: 20px;
+}
+
+.sl-login-prompt a {
+    color: var(--sl-red);
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.sl-login-prompt a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* Register card slightly wider for more form fields */
+.sl-card--register {
+    max-width: 460px;
+}
+
+/* Responsive adjustments for register */
+@media (max-width: 480px) {
+    .sl-card--register {
+        max-width: 100%;
+    }
+
+    .sl-benefits {
+        gap: 10px;
+    }
+
+    .sl-benefit {
+        font-size: 9px;
+    }
+}
