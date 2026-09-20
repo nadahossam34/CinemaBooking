@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#241416" />
+      <stop offset="50%" stop-color="#181314" />
+      <stop offset="100%" stop-color="#0E0E0E" />
+    </linearGradient>
+
+    <!-- Primary Red Glow Gradient -->
+    <linearGradient id="redGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5A60" />
+      <stop offset="50%" stop-color="#E50914" />
+      <stop offset="100%" stop-color="#930007" />
+    </linearGradient>
+
+    <!-- Star Radiant Gold/Amber Gradient -->
+    <linearGradient id="goldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3C4" />
+      <stop offset="40%" stop-color="#F1C111" />
+      <stop offset="100%" stop-color="#E50914" />
+    </linearGradient>
+
+    <!-- Projector Beam Gradient -->
+    <linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E50914" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#E50914" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="cinemaGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E50914" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#E50914" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#E50914" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Rounded Shield / Frame -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#bgGrad)" stroke="#3A2527" stroke-width="1.5" />
+
+  <!-- Ambient Light Halo -->
+  <circle cx="32" cy="32" r="24" fill="url(#halo)" />
+
+  <!-- Film Strip Accent Notches (Left & Right) -->
+  <rect x="5.5" y="10" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.5" />
+  <rect x="5.5" y="20" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.7" />
+  <rect x="5.5" y="30" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.9" />
+  <rect x="5.5" y="40" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.7" />
+  <rect x="5.5" y="50" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.5" />
+
+  <rect x="55.5" y="10" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.5" />
+  <rect x="55.5" y="20" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.7" />
+  <rect x="55.5" y="30" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.9" />
+  <rect x="55.5" y="40" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.7" />
+  <rect x="55.5" y="50" width="3" height="4.5" rx="1" fill="#E50914" fill-opacity="0.5" />
+
+  <!-- Cinematic Projector Lens Ring -->
+  <circle cx="32" cy="32" r="19" stroke="url(#redGlow)" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.85" />
+  <circle cx="32" cy="32" r="16" stroke="#5E2024" stroke-width="1" />
+
+  <!-- The StarLight Radiant Emblem -->
+  <!-- Diagonal Light Rays -->
+  <line x1="18" y1="18" x2="46" y2="46" stroke="#FFB4AA" stroke-width="1" opacity="0.35" />
+  <line x1="46" y1="18" x2="18" y2="46" stroke="#FFB4AA" stroke-width="1" opacity="0.35" />
+
+  <!-- 4-Point Faceted Cinema Star -->
+  <g filter="url(#cinemaGlow)">
+    <!-- Main Star Polygon -->
+    <path d="M32 9 L35.2 24.8 L48 26 L36.8 33.2 L41.5 48 L32 38.5 L22.5 48 L27.2 33.2 L16 26 L28.8 24.8 Z" fill="url(#redGlow)" />
+    
+    <!-- Central Brilliant 4-Point Diamond Star Light -->
+    <path d="M32 14 L34.5 28 L46 32 L34.5 36 L32 50 L29.5 36 L18 32 L29.5 28 Z" fill="url(#goldGlow)" />
+    
+    <!-- Inner Core Gleam -->
+    <circle cx="32" cy="32" r="3.2" fill="#FFFFFF" />
+    <circle cx="32" cy="32" r="1.5" fill="#FFF3C4" />
+  </g>
+</svg>
