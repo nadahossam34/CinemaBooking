@@ -42,5 +42,33 @@ namespace CinemaBooking.ViewModels
 
         [Display(Name = "TMDB ID")]
         public int TmdbId { get; set; }
+
+        [Display(Name = "Release Date")]
+        public string? ReleaseDate { get; set; }
+
+        [Display(Name = "Original Title")]
+        public string? OriginalTitle { get; set; }
+
+        [Display(Name = "Director")]
+        public string? Director { get; set; }
+
+        [Display(Name = "Certification")]
+        public string? Certification { get; set; }
+
+        [Display(Name = "Vote Average")]
+        public double VoteAverage { get; set; }
+
+        [Display(Name = "Vote Count")]
+        public int VoteCount { get; set; }
+
+        [Display(Name = "Formats")]
+        public string? Formats { get; set; }
+
+        [Display(Name = "Locations")]
+        public string? Locations { get; set; }
+
+        public List<int> SelectedCinemaIds { get; set; } = new List<int>();
+        public decimal StandardPrice { get; set; } = 180.00m;
+        public List<global::Cinema> AvailableCinemas { get; set; } = new List<global::Cinema>();
     }
 }
