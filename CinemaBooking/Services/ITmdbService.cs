@@ -8,6 +8,9 @@ namespace CinemaBooking.Services
     /// </summary>
     public interface ITmdbService
     {
+        /// <summary>True when a TMDB API credential is present in configuration.</summary>
+        bool IsConfigured { get; }
+
         Task<TmdbResult<TmdbMovieSearchResponse>> SearchMoviesAsync(string query, CancellationToken cancellationToken = default);
 
         Task<TmdbResult<TmdbMovieDetails>> GetMovieDetailsAsync(int tmdbMovieId, CancellationToken cancellationToken = default);
