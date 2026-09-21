@@ -1,0 +1,668 @@
+@model MovieFormViewModel
+@{
+    ViewData["Title"] = "Add New Movie";
+    Layout = "_AdminLayout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-movie-create.css" asp-append-version="true" />
+}
+
+<main class="amv-main">
+    <!-- Breadcrumb -->
+    <div class="amv-breadcrumb">
+        <a asp-controller="Admin" asp-action="Index">ADMIN CONSOLE</a>
+        <span class="amv-bc-sep">/</span>
+        <a asp-controller="AdminMovies" asp-action="Index">MOVIES CATALOG</a>
+        <span class="amv-bc-sep">/</span>
+        <span class="amv-bc-current">ADD NEW MOVIE</span>
+    </div>
+
+    <!-- Page Heading -->
+    <div class="amv-page-header">
+        <div class="amv-title-row">
+            <h1>Add New Movie</h1>
+            <span class="amv-badge-sync">TMDB SYNC V3</span>
+        </div>
+        <p class="amv-header-desc">
+            Query The Movie Database (TMDB) to fetch verified cinematic metadata, customize localized attributes, and configure StarLight auditorium screening policies.
+        </p>
+    </div>
+
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="amv-status-banner amv-banner-success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+            <span>@TempData["StatusMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="amv-status-banner amv-banner-error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <!-- 1. TMDB Global Search Engine Card -->
+    <section class="amv-card amv-search-card">
+        <div class="amv-card-head">
+            <div>
+                <h2>TMDB Global Search Engine</h2>
+                <p>Query The Movie Database v3 endpoint to auto-retrieve high-res artwork, certifications, and synopsis.</p>
+            </div>
+        </div>
+
+        <div class="amv-search-bar-row">
+            <div class="amv-search-input-wrap">
+                <svg class="amv-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                <input type="text" id="tmdbQuery" class="amv-search-input" placeholder="Interstellar" autocomplete="off" />
+            </div>
+            <button type="button" id="tmdbClearBtn" class="amv-btn amv-btn-clear">Clear</button>
+            <button type="button" id="tmdbSearchBtn" class="amv-btn amv-btn-fetch">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19" /></svg>
+                Fetch TMDB Record
+            </button>
+            <button type="button" class="amv-filter-icon-btn" title="Search Filters" aria-label="Filters">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" /></svg>
+            </button>
+        </div>
+
+        <!-- Match status line -->
+        <div id="tmdbStatusLine" class="amv-status-line" style="display: none;">
+            <span class="amv-match-check">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+            </span>
+            <span id="tmdbStatusText" class="amv-match-text">Exact Match Found (1 candidate)</span>
+            <span class="amv-match-sep">&middot;</span>
+            <span class="amv-match-source">Source: TMDB REST API /movie/<span id="tmdbSourceId">157336</span></span>
+        </div>
+
+        <!-- Search candidate results grid (if multiple movies found) -->
+        <div id="tmdbResults" class="amv-results-grid" style="display: none;"></div>
+    </section>
+
+    <!-- 2. MOVIE DETAILS CARD (READ-ONLY) - Hidden until TMDB fetch -->
+    <section id="movieDetailsSection" class="amv-card amv-movie-details-card" style="display: none;">
+        <div class="amv-details-grid">
+            <!-- Left Poster Column -->
+            <div class="amv-poster-column">
+                <div class="amv-poster-wrapper">
+                    <img id="mdPosterImg" src="" alt="Movie Poster" class="amv-poster-img" />
+                    <div class="amv-poster-badge-top">2:3 POSTER</div>
+                    <div class="amv-poster-badge-bottom">HD SOURCE 2000x3000</div>
+                </div>
+            </div>
+
+            <!-- Right Metadata Column (READ-ONLY) -->
+            <div class="amv-content-column">
+                <!-- TMDB Imported Pill -->
+                <div class="amv-top-badges-row">
+                    <span class="amv-imported-pill">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                        <span id="mdImportedIdText">IMPORTED FROM TMDB (ID: 157336)</span>
+                    </span>
+                </div>
+
+                <!-- Title, Release Year, Certification -->
+                <div class="amv-title-year-row">
+                    <h2 id="mdTitle" class="amv-movie-title">Interstellar</h2>
+                    <span id="mdYear" class="amv-movie-year">2014</span>
+                    <span id="mdCert" class="amv-movie-cert">PG-13</span>
+                </div>
+
+                <!-- Tagline -->
+                <div id="mdTagline" class="amv-movie-tagline">&ldquo;Mankind was born on Earth. It was never meant to die here.&rdquo;</div>
+
+                <!-- Metadata Badges Row -->
+                <div class="amv-meta-pills-row">
+                    <div class="amv-meta-pill">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                        <span id="mdDuration">169 min (2h 49m)</span>
+                    </div>
+                    <div class="amv-meta-pill">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                        <span id="mdRatingVotes">8.7 /10 (34,128 votes)</span>
+                    </div>
+                    <div class="amv-meta-pill">
+                        <span id="mdGenres">Sci-Fi &bull; Adventure &bull; Drama</span>
+                    </div>
+                    <div class="amv-meta-pill">
+                        <span id="mdDirector">Director: Christopher Nolan</span>
+                    </div>
+                </div>
+
+                <!-- Synopsis / Description -->
+                <p id="mdOverview" class="amv-movie-overview">
+                    When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans through a newly discovered wormhole in Saturn's orbit.
+                </p>
+
+                <!-- Footer link to TMDB reference -->
+                <div class="amv-details-link-row">
+                    <a id="mdTmdbLink" href="https://www.themoviedb.org/movie/157336" target="_blank" rel="noopener" class="amv-tmdb-link">
+                        Open TMDB Web Reference
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hidden form containing values for persistence upon Save -->
+    <form asp-controller="AdminMovies" asp-action="Create" method="post" id="movieForm" novalidate>
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger-amv"></div>
+        <input type="hidden" asp-for="Title" id="formTitle" />
+        <input type="hidden" asp-for="Genre" id="formGenre" />
+        <input type="hidden" asp-for="DurationMinutes" id="formDurationMinutes" />
+        <input type="hidden" asp-for="Description" id="formDescription" />
+        <input type="hidden" asp-for="Rating" id="formRating" />
+        <input type="hidden" asp-for="PosterUrl" id="formPosterUrl" />
+        <input type="hidden" asp-for="TrailerUrl" id="formTrailerUrl" />
+        <input type="hidden" asp-for="ReleaseStatus" id="formReleaseStatus" />
+        <input type="hidden" asp-for="TmdbId" id="formTmdbId" />
+        <input type="hidden" asp-for="ReleaseDate" id="formReleaseDate" />
+        <input type="hidden" asp-for="OriginalTitle" id="formOriginalTitle" />
+        <input type="hidden" asp-for="Director" id="formDirector" />
+        <input type="hidden" asp-for="Certification" id="formCertification" />
+        <input type="hidden" asp-for="VoteAverage" id="formVoteAverage" />
+        <input type="hidden" asp-for="VoteCount" id="formVoteCount" />
+        <input type="hidden" asp-for="Formats" id="formFormats" />
+        <input type="hidden" asp-for="Locations" id="formLocations" />
+        <input type="hidden" asp-for="StandardPrice" id="formStandardPrice" />
+        <div id="selectedCinemasContainer">
+            @if (Model.SelectedCinemaIds != null)
+            {
+                foreach (var cId in Model.SelectedCinemaIds)
+                {
+                    <input type="hidden" name="SelectedCinemaIds" value="@cId" />
+                }
+            }
+        </div>
+    </form>
+
+    <!-- 3. StarLight Cinemas Exhibition Settings Card -->
+    <section class="amv-card amv-card-exhibition">
+        <div class="amv-card-eyebrow">
+            <span class="amv-eyebrow-icon"></span>
+            <span>THEATER CIRCUIT ENGINE</span>
+        </div>
+        <div class="amv-card-head">
+            <div>
+                <h2>StarLight Cinemas Exhibition Settings</h2>
+                <p>Configure distribution status, assigned theater multiplexes, format certification specs, and dynamic seat pricing. This data directly governs ticketing inventory and scheduling displays.</p>
+            </div>
+        </div>
+
+        <!-- Catalog Availability Status -->
+        <div class="amv-section-label">CATALOG AVAILABILITY STATUS</div>
+        <div class="amv-status-options-grid">
+            <label class="amv-status-card is-selected">
+                <input type="radio" name="amvCatalogStatus" value="now_showing" checked class="amv-sr-only" />
+                <div class="amv-status-card-header">
+                    <span class="amv-radio-indicator is-red"></span>
+                    <span class="amv-status-title">Now Showing</span>
+                </div>
+                <p class="amv-status-desc">
+                    Immediately live on showtimes selector. Customers can book and buy seats in all active auditoriums.
+                </p>
+                <div class="amv-status-chip-row">
+                    <span class="amv-chip amv-chip-red">Live Box Office Active</span>
+                </div>
+            </label>
+
+            <label class="amv-status-card">
+                <input type="radio" name="amvCatalogStatus" value="coming_soon" class="amv-sr-only" />
+                <div class="amv-status-card-header">
+                    <span class="amv-radio-indicator is-amber"></span>
+                    <span class="amv-status-title">Coming Soon</span>
+                </div>
+                <p class="amv-status-desc">
+                    Promotional trailer viewable. Advance tickets enabled if dates are set; &ldquo;Notify Me&rdquo; SMS activated.
+                </p>
+                <div class="amv-status-chip-row">
+                    <span class="amv-chip amv-chip-amber">Pre-Release Marketing</span>
+                </div>
+            </label>
+        </div>
+
+        <!-- Exhibition Cinema Multiplexes -->
+        <div class="amv-section-label-row">
+            <span class="amv-section-label">EXHIBITION CINEMA MULTIPLEXES (SELECT ALL APPLICABLE)</span>
+            <span class="amv-section-subinfo" id="selectedLocationsCount">3 Locations Selected</span>
+        </div>
+        <div class="amv-cinemas-grid">
+            @if (Model.AvailableCinemas != null && Model.AvailableCinemas.Any())
+            {
+                foreach (var c in Model.AvailableCinemas)
+                {
+                    var isChecked = Model.SelectedCinemaIds != null && Model.SelectedCinemaIds.Contains(c.Id);
+                    <label class="amv-checkbox-card">
+                        <input type="checkbox" value="@c.Id" data-name="@c.Name" @(isChecked ? "checked" : "") class="amv-cinema-checkbox" />
+                        <div class="amv-checkbox-card-body">
+                            <div class="amv-card-main-title">@c.Name</div>
+                            <div class="amv-card-subtitle">@c.City</div>
+                            <span class="amv-cinema-spec-tag">@(c.Halls?.Count ?? 0) Halls Available</span>
+                        </div>
+                    </label>
+                }
+            }
+            else
+            {
+                <p class="text-white-50 p-2">No cinemas configured yet in database.</p>
+            }
+        </div>
+
+        <!-- Certified Projection Formats -->
+        <div class="amv-section-label">CERTIFIED PROJECTION FORMATS</div>
+        <div class="amv-formats-grid">
+            <label class="amv-format-card">
+                <span class="amv-format-badge-tag amv-bg-imax">IMAX</span>
+                <div class="amv-format-meta">
+                    <div class="amv-format-name">IMAX with Laser</div>
+                    <div class="amv-format-spec">1.43:1 / 12-Ch Audio</div>
+                </div>
+                <input type="checkbox" checked class="amv-format-check" />
+            </label>
+
+            <label class="amv-format-card">
+                <span class="amv-format-badge-tag amv-bg-dolby">DOLBY</span>
+                <div class="amv-format-meta">
+                    <div class="amv-format-name">Dolby Cinema</div>
+                    <div class="amv-format-spec">Atmos &amp; Vision HDR</div>
+                </div>
+                <input type="checkbox" checked class="amv-format-check" />
+            </label>
+
+            <label class="amv-format-card">
+                <span class="amv-format-badge-tag amv-bg-vip">VIP</span>
+                <div class="amv-format-meta">
+                    <div class="amv-format-name">VIP Dine-In</div>
+                    <div class="amv-format-spec">Recliners &amp; Butler</div>
+                </div>
+                <input type="checkbox" checked class="amv-format-check" />
+            </label>
+
+            <label class="amv-format-card">
+                <span class="amv-format-badge-tag amv-bg-standard">2D</span>
+                <div class="amv-format-meta">
+                    <div class="amv-format-name">Digital Standard</div>
+                    <div class="amv-format-spec">4K Laser Crisp</div>
+                </div>
+                <input type="checkbox" checked class="amv-format-check" />
+            </label>
+        </div>
+
+        <!-- Pricing & Discovery Flags Dual Column -->
+        <div class="amv-dual-box-grid">
+            <!-- Pricing Container -->
+            <div class="amv-subpanel-box">
+                <div class="amv-subpanel-head">
+                    <span>AUDITORIUM BASE TICKET PRICING (EGP)</span>
+                </div>
+                <div class="amv-price-columns">
+                    <div class="amv-price-col">
+                        <div class="amv-price-tier-name">Standard Hall</div>
+                        <div class="amv-price-edit-row">
+                            <input type="number" class="amv-price-input" name="standardPrice" id="standardPrice" value="180" min="0" step="5" />
+                            <span class="amv-price-currency">EGP</span>
+                        </div>
+                        <div class="amv-price-note">General Admission</div>
+                    </div>
+
+                    <div class="amv-price-col">
+                        <div class="amv-price-tier-name">IMAX Laser Tier</div>
+                        <div class="amv-price-edit-row">
+                            <input type="number" class="amv-price-input" name="imaxPrice" id="imaxPrice" value="250" min="0" step="5" />
+                            <span class="amv-price-currency">EGP</span>
+                        </div>
+                        <div class="amv-price-note">Includes 3D Eyewear</div>
+                    </div>
+
+                    <div class="amv-price-col">
+                        <div class="amv-price-tier-name">VIP Luxe Lounge</div>
+                        <div class="amv-price-edit-row">
+                            <input type="number" class="amv-price-input" name="vipPrice" id="vipPrice" value="350" min="0" step="5" />
+                            <span class="amv-price-currency">EGP</span>
+                        </div>
+                        <div class="amv-price-note">Butler Service Ready</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discovery & Feature Flags -->
+            <div class="amv-subpanel-box">
+                <div class="amv-subpanel-head">
+                    <span>DISCOVERY &amp; FEATURE FLAGS</span>
+                </div>
+                <div class="amv-flags-list">
+                    <div class="amv-flag-row">
+                        <div class="amv-flag-info">
+                            <div class="amv-flag-label">Feature on Hero Banner</div>
+                            <div class="amv-flag-hint">Priority placement in customer top rail</div>
+                        </div>
+                        <label class="amv-toggle-switch">
+                            <input type="checkbox" checked />
+                            <span class="amv-toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="amv-flag-row">
+                        <div class="amv-flag-info">
+                            <div class="amv-flag-label">Online Seat Reservation</div>
+                            <div class="amv-flag-hint">Open interactive seat grid booking</div>
+                        </div>
+                        <label class="amv-toggle-switch">
+                            <input type="checkbox" checked />
+                            <span class="amv-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom Sticky Action Bar -->
+    <div class="amv-sticky-bottombar">
+        <div class="amv-bottom-left">
+            <span class="amv-amber-dot"></span>
+            <span class="amv-unsaved-bold">Unsaved Changes Pending</span>
+            <span class="amv-validated-pill" id="tmdbValidatedPill" style="display: none;">TMDB Validated</span>
+            <span class="amv-bottom-hint">All required exhibition policies and artwork verified.</span>
+        </div>
+        <div class="amv-bottom-right">
+            <a asp-controller="AdminMovies" asp-action="Index" class="amv-btn amv-btn-cancel">Discard &amp; Cancel</a>
+            <button type="submit" form="movieForm" class="amv-btn amv-btn-save" id="btnSavePublish">Save Movie &amp; Publish</button>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        (function () {
+            const searchBtn = document.getElementById('tmdbSearchBtn');
+            const clearBtn = document.getElementById('tmdbClearBtn');
+            const queryInput = document.getElementById('tmdbQuery');
+            const resultsEl = document.getElementById('tmdbResults');
+            const statusLine = document.getElementById('tmdbStatusLine');
+            const statusText = document.getElementById('tmdbStatusText');
+            const sourceIdEl = document.getElementById('tmdbSourceId');
+            const movieDetailsSection = document.getElementById('movieDetailsSection');
+            const validatedPill = document.getElementById('tmdbValidatedPill');
+
+            const mdPosterImg = document.getElementById('mdPosterImg');
+            const mdImportedIdText = document.getElementById('mdImportedIdText');
+            const mdTitle = document.getElementById('mdTitle');
+            const mdYear = document.getElementById('mdYear');
+            const mdCert = document.getElementById('mdCert');
+            const mdTagline = document.getElementById('mdTagline');
+            const mdDuration = document.getElementById('mdDuration');
+            const mdRatingVotes = document.getElementById('mdRatingVotes');
+            const mdGenres = document.getElementById('mdGenres');
+            const mdDirector = document.getElementById('mdDirector');
+            const mdOverview = document.getElementById('mdOverview');
+            const mdTmdbLink = document.getElementById('mdTmdbLink');
+
+            const formTitle = document.getElementById('formTitle');
+            const formGenre = document.getElementById('formGenre');
+            const formDurationMinutes = document.getElementById('formDurationMinutes');
+            const formDescription = document.getElementById('formDescription');
+            const formRating = document.getElementById('formRating');
+            const formPosterUrl = document.getElementById('formPosterUrl');
+            const formTrailerUrl = document.getElementById('formTrailerUrl');
+            const formReleaseStatus = document.getElementById('formReleaseStatus');
+            const formTmdbId = document.getElementById('formTmdbId');
+            const formReleaseDate = document.getElementById('formReleaseDate');
+            const formOriginalTitle = document.getElementById('formOriginalTitle');
+            const formDirector = document.getElementById('formDirector');
+            const formCertification = document.getElementById('formCertification');
+            const formVoteAverage = document.getElementById('formVoteAverage');
+            const formVoteCount = document.getElementById('formVoteCount');
+            const formFormats = document.getElementById('formFormats');
+            const formLocations = document.getElementById('formLocations');
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str == null ? '' : String(str);
+                return div.innerHTML;
+            }
+
+            async function performSearch() {
+                const query = queryInput.value.trim() || 'Interstellar';
+                resultsEl.innerHTML = '';
+                resultsEl.style.display = 'none';
+
+                statusLine.style.display = 'flex';
+                statusText.textContent = 'Searching TMDB...';
+                sourceIdEl.textContent = '...';
+
+                try {
+                    const response = await fetch('/AdminMovies/SearchTmdb?query=' + encodeURIComponent(query), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        statusText.textContent = data.message || 'TMDB search failed.';
+                        return;
+                    }
+
+                    if (!data.results || data.results.length === 0) {
+                        statusText.textContent = 'No movies found for "' + query + '".';
+                        return;
+                    }
+
+                    const list = data.results;
+                    if (list.length === 1) {
+                        const candidate = list[0];
+                        statusText.textContent = 'Exact Match Found (1 candidate)';
+                        sourceIdEl.textContent = candidate.tmdbId;
+                        await loadMovieDetails(candidate.tmdbId);
+                    } else {
+                        statusText.textContent = list.length + ' candidates found';
+                        sourceIdEl.textContent = 'search';
+                        resultsEl.style.display = 'grid';
+
+                        list.forEach(function (item) {
+                            const card = document.createElement('div');
+                            card.className = 'amv-candidate-card';
+                            const posterSrc = item.posterUrl || '';
+                            const posterHtml = posterSrc
+                                ? '<img src="' + posterSrc + '" class="amv-cand-poster" alt="" />'
+                                : '<div class="amv-cand-empty-poster">No Art</div>';
+
+                            const rating = (typeof item.voteAverage === 'number') ? item.voteAverage.toFixed(1) : 'N/A';
+
+                            card.innerHTML =
+                                posterHtml +
+                                '<div class="amv-cand-info">' +
+                                    '<div class="amv-cand-title">' + escapeHtml(item.title) + '</div>' +
+                                    '<div class="amv-cand-meta">' + escapeHtml(item.releaseDate || '') + ' &middot; &#9733; ' + rating + '</div>' +
+                                    '<button type="button" class="amv-btn-cand-select" data-id="' + item.tmdbId + '">Select Movie</button>' +
+                                '</div>';
+
+                            resultsEl.appendChild(card);
+                        });
+
+                        resultsEl.querySelectorAll('.amv-btn-cand-select').forEach(function (btn) {
+                            btn.addEventListener('click', function () {
+                                const selId = this.getAttribute('data-id');
+                                statusText.textContent = 'Exact Match Found (1 candidate)';
+                                sourceIdEl.textContent = selId;
+                                resultsEl.style.display = 'none';
+                                loadMovieDetails(selId);
+                            });
+                        });
+                    }
+                } catch (err) {
+                    statusText.textContent = 'Network error while contacting TMDB.';
+                }
+            }
+
+            async function loadMovieDetails(tmdbId) {
+                try {
+                    const response = await fetch('/AdminMovies/TmdbDetails/' + tmdbId, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await response.json();
+
+                    if (!data.success || !data.movie) {
+                        statusText.textContent = data.message || 'Could not load movie details.';
+                        return;
+                    }
+
+                    const movie = data.movie;
+
+                    formTitle.value = movie.title || '';
+                    formGenre.value = movie.genre || '';
+                    formDurationMinutes.value = movie.durationMinutes || 0;
+                    formDescription.value = movie.description || '';
+                    formRating.value = movie.rating || '';
+                    formPosterUrl.value = movie.posterUrl || '';
+                    formTrailerUrl.value = '';
+                    formReleaseStatus.value = movie.releaseStatus || 'Now Showing';
+                    formTmdbId.value = movie.tmdbId || 0;
+                    if (formReleaseDate) formReleaseDate.value = movie.releaseDate || '';
+                    if (formOriginalTitle) formOriginalTitle.value = movie.originalTitle || movie.title || '';
+                    if (formDirector) formDirector.value = movie.director || 'Christopher Nolan';
+                    if (formCertification) formCertification.value = movie.certification || 'PG-13';
+                    if (formVoteAverage) formVoteAverage.value = movie.voteAverage || 0;
+                    if (formVoteCount) formVoteCount.value = movie.voteCountNum || 0;
+
+                    mdTitle.textContent = movie.title || 'Untitled';
+                    mdYear.textContent = movie.releaseYear || '';
+                    mdCert.textContent = movie.certification || 'PG-13';
+                    mdTagline.textContent = movie.tagline ? '"' + movie.tagline + '"' : '';
+                    mdDuration.textContent = movie.durationFormatted || (movie.durationMinutes + ' min');
+                    mdRatingVotes.textContent = (movie.rating || 'N/A') + ' /10 (' + (movie.voteCount || '0') + ' votes)';
+                    mdGenres.textContent = movie.genre || 'Cinema';
+                    mdDirector.textContent = 'Director: ' + (movie.director || 'Christopher Nolan');
+                    mdOverview.textContent = movie.description || 'No synopsis available.';
+                    mdImportedIdText.textContent = 'IMPORTED FROM TMDB (ID: ' + movie.tmdbId + ')';
+                    mdTmdbLink.href = 'https://www.themoviedb.org/movie/' + movie.tmdbId;
+
+                    if (movie.posterUrl) {
+                        mdPosterImg.src = movie.posterUrl;
+                        mdPosterImg.style.display = 'block';
+                    } else {
+                        mdPosterImg.style.display = 'none';
+                    }
+
+                    movieDetailsSection.style.display = 'block';
+                    validatedPill.style.display = 'inline-block';
+                    movieDetailsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                } catch (err) {
+                    statusText.textContent = 'Failed to load movie details.';
+                }
+            }
+
+            searchBtn.addEventListener('click', performSearch);
+            queryInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+
+            clearBtn.addEventListener('click', function () {
+                queryInput.value = '';
+                resultsEl.innerHTML = '';
+                resultsEl.style.display = 'none';
+                statusLine.style.display = 'none';
+                movieDetailsSection.style.display = 'none';
+                validatedPill.style.display = 'none';
+                formTitle.value = '';
+                formGenre.value = '';
+                formDurationMinutes.value = 0;
+                formDescription.value = '';
+                formRating.value = '';
+                formPosterUrl.value = '';
+                formReleaseStatus.value = '';
+                formTmdbId.value = 0;
+                if (formReleaseDate) formReleaseDate.value = '';
+                if (formOriginalTitle) formOriginalTitle.value = '';
+                if (formDirector) formDirector.value = '';
+                if (formCertification) formCertification.value = '';
+                if (formVoteAverage) formVoteAverage.value = 0;
+                if (formVoteCount) formVoteCount.value = 0;
+                if (formFormats) formFormats.value = '';
+                if (formLocations) formLocations.value = '';
+                queryInput.focus();
+            });
+
+            const cinemaCheckboxes = document.querySelectorAll('.amv-cinema-checkbox');
+            const countDisplay = document.getElementById('selectedLocationsCount');
+            function updateLocationCount() {
+                const count = document.querySelectorAll('.amv-cinema-checkbox:checked').length;
+                if (countDisplay) {
+                    countDisplay.textContent = count + (count === 1 ? ' Location Selected' : ' Locations Selected');
+                }
+            }
+            cinemaCheckboxes.forEach(cb => cb.addEventListener('change', updateLocationCount));
+
+            document.querySelectorAll('input[name="amvCatalogStatus"]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    document.querySelectorAll('.amv-status-card').forEach(c => c.classList.remove('is-selected'));
+                    if (radio.checked) {
+                        radio.closest('.amv-status-card').classList.add('is-selected');
+                    }
+                });
+            });
+
+            const movieFormEl = document.getElementById('movieForm');
+            if (movieFormEl) {
+                movieFormEl.addEventListener('submit', function () {
+                    const isComingSoon = document.querySelector('input[name="amvCatalogStatus"]:checked')?.value === 'coming_soon';
+                    if (formReleaseStatus) {
+                        formReleaseStatus.value = isComingSoon ? 'Coming Soon' : 'Now Showing';
+                    }
+
+                    const checkedFormats = [];
+                    document.querySelectorAll('.amv-format-card input[type="checkbox"]:checked').forEach(function (cb) {
+                        const card = cb.closest('.amv-format-card');
+                        const badge = card ? card.querySelector('.amv-format-badge-tag') : null;
+                        if (badge) checkedFormats.push(badge.textContent.trim());
+                    });
+                    if (formFormats) {
+                        formFormats.value = checkedFormats.join(', ');
+                    }
+
+                    const checkedLocations = [];
+                    const cinemasContainer = document.getElementById('selectedCinemasContainer');
+                    if (cinemasContainer) cinemasContainer.innerHTML = '';
+
+                    document.querySelectorAll('.amv-checkbox-card input[type="checkbox"]:checked').forEach(function (cb) {
+                        const card = cb.closest('.amv-checkbox-card');
+                        const title = card ? card.querySelector('.amv-card-main-title') : null;
+                        if (title) checkedLocations.push(title.textContent.trim());
+
+                        if (cinemasContainer && cb.value) {
+                            const hiddenInp = document.createElement('input');
+                            hiddenInp.type = 'hidden';
+                            hiddenInp.name = 'SelectedCinemaIds';
+                            hiddenInp.value = cb.value;
+                            cinemasContainer.appendChild(hiddenInp);
+                        }
+                    });
+                    if (formLocations) {
+                        formLocations.value = checkedLocations.join(', ');
+                    }
+
+                    const stdInput = document.getElementById('standardPrice');
+                    const formStd = document.getElementById('formStandardPrice');
+                    if (stdInput && formStd) {
+                        formStd.value = stdInput.value || '180';
+                    }
+                });
+            }
+
+            updateLocationCount();
+
+            if (formTitle.value && formTitle.value.trim().length > 0) {
+                movieDetailsSection.style.display = 'block';
+                validatedPill.style.display = 'inline-block';
+            }
+        })();
+    </script>
+}
